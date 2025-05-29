@@ -1,4 +1,4 @@
-package com.joincoded.bankapi.Api
+package com.joincoded.bankapi.api
 
 import com.joincoded.bankapi.dto.AuthenticationRequest
 import com.joincoded.bankapi.dto.AuthenticationResponse
@@ -19,5 +19,5 @@ interface AuthApi {
         @Body request: RegistrationRequestDTO): Response<Any>
 
     @POST("api/auth/check-token")
-    suspend fun checkToken(): Response<CheckTokenResponse>
+    suspend fun checkToken(s: String): Response<CheckTokenResponse>
 }

@@ -42,6 +42,7 @@ class BankViewModel : ViewModel() {
 
     // to indicate if user is currently logged in
     var isLoggedIn: Boolean by mutableStateOf(false)
+    var needSignUp: Boolean by mutableStateOf(false)
 
 
     // this to store user account info (name, balance, active ..)
@@ -94,6 +95,14 @@ class BankViewModel : ViewModel() {
 
                         // validate the token to get user Id
                         checkToken()
+
+                        val account = accountApiService.viewInformation("Bearer $authToken")
+                        if (account.isSuccessful)
+                        {needSignUp = false}
+                        else {
+                            needSignUp = true
+                        }
+
 
                         // get user account info
                         loadUserAccount()
@@ -161,6 +170,7 @@ class BankViewModel : ViewModel() {
                     if (response.isSuccessful) {
                         // if token is valid extract user Id
                         currentUserId = response.body()?.userId
+//                        if (response.body().NeedRegistor)
                     } else {
                         // Token is invalid or expired - log user out
                         logout()

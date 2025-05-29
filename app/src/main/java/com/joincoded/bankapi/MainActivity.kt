@@ -17,6 +17,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.joincoded.bankapi.AppNavigator.BankNavHost
 import com.joincoded.bankapi.ui.theme.BankAPITheme
 
 
@@ -28,7 +29,8 @@ class MainActivity : ComponentActivity() {
         setContent {
             BankAPITheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(name = "name", modifier = Modifier.padding(innerPadding))
+BankNavHost(modifier = Modifier.padding(innerPadding))
+                // Greeting(name = "name", modifier = Modifier.padding(innerPadding))
                 }
             }
         }

@@ -2,9 +2,13 @@ package com.joincoded.bankapi.AppNavigator
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.joincoded.bankapi.composables.YallaBankingLoginScreen
+import com.joincoded.bankapi.viewmodel.BankViewModel
 
 object AppDestinations {
     const val lOGIN = "logIn"
@@ -24,15 +28,25 @@ object AppDestinations {
 }
 
 @Composable
-fun BankNavHost(modifier: Modifier,
-                navController:NavHostController = rememberNavController()){
+fun BankNavHost(
+    modifier: Modifier,
+    navController:
+    NavHostController = rememberNavController()){
 
+    val bankViewModel: BankViewModel = viewModel()
     NavHost(
         modifier = modifier,
         navController = navController,
         startDestination = AppDestinations.lOGIN
     ){
-
+        composable(AppDestinations.lOGIN){
+            YallaBankingLoginScreen(
+                {
+                    navController.navigate(AppDestinations.HOMEPAGE)
+                },
+                bankViewModel
+            )
+        }
 
 
     }

@@ -1,6 +1,5 @@
 package com.joincoded.bankapi.AppNavigator
 
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -8,16 +7,14 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.joincoded.bankapi.composables.CardsScreen
 import com.joincoded.bankapi.composables.YallaBankingLoginScreen
 import com.joincoded.bankapi.viewmodel.BankViewModel
 
 object AppDestinations {
     const val lOGIN = "logIn"
-    const val CREATEPROFILE = "createProfile"
     const val SIGNUP ="signUp"
     const val HOMEPAGE = "homePage"
-    const val CARDS = "composable/cards"
+    const val CARDS = "cards"
     const val CARDDETAILS ="cardDetails"
     const val TRANSFER ="tranfer"
     const val GROUPS ="groups"
@@ -44,57 +41,11 @@ fun BankNavHost(
     ){
         composable(AppDestinations.lOGIN){
             YallaBankingLoginScreen(
-
-                bankViewModel,
-                navController
+                {
+                    navController.navigate(AppDestinations.HOMEPAGE)
+                },
+                bankViewModel
             )
-
-
-        }
-
-        composable (AppDestinations.SIGNUP){
-
-
-            Text(text = "Sign Up")
-        }
-
-
-        composable (AppDestinations.HOMEPAGE){
-
-            CardsScreen(bankViewModel,{
-                navController.navigate(AppDestinations.CARDDETAILS)
-            })
-        }
-        composable (AppDestinations.CARDS){
-            Text(text = "Card Detail")
-        }
-
-        composable (AppDestinations.CARDDETAILS){
-
-
-        }
-
-        composable (AppDestinations.TRANSFER){
-
-
-        }
-        composable (AppDestinations.GROUPS){
-
-        }
-        composable (AppDestinations.CREATEGROUP){
-
-        }
-        composable (AppDestinations.GROUPDETAIL){
-
-        }
-        composable (AppDestinations.ADDMEMBER){
-
-        }
-        composable (AppDestinations.FUNDGROUP){
-
-        }
-        composable (AppDestinations.PROFILE){
-
         }
 
 

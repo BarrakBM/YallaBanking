@@ -18,26 +18,19 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.joincoded.bankapi.AppNavigator.AppDestinations
 import com.joincoded.bankapi.viewmodel.BankViewModel
 
 @Composable
 fun YallaBankingLoginScreen(
-
-    bankViewModel: BankViewModel,
-    navController: NavController
+    onNavigateTogo:()-> Unit,
+    bankViewModel: BankViewModel
 ) {
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
-    if(bankViewModel.isLoggedIn && bankViewModel.needSignUp) {          // is Needregistor
-        navController.navigate(AppDestinations.SIGNUP)
+    if(bankViewModel.isLoggedIn) {
+        onNavigateTogo()
     }
-    else if (bankViewModel.isLoggedIn && !bankViewModel.needSignUp) {
-
-        navController.navigate(AppDestinations.HOMEPAGE)
-    }
-    // new function or navigator for signUP
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -191,7 +184,7 @@ fun YallaBankingLoginScreen(
             }
 
             TextButton(
-                onClick = { navController.navigate(AppDestinations.SIGNUP) }    //
+                onClick = { /* Handle sign up */ }    //
             ) {
                 Text(
                     text = "Sign up",

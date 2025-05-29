@@ -17,8 +17,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.joincoded.bankapi.AppNavigator.BankNavHost
+import com.joincoded.bankapi.composable.CompleteProfileScreen
+import com.joincoded.bankapi.composable.YallaBankingProfileScreen
+import com.joincoded.bankapi.composable.YallaBankingSignUpScreen
 import com.joincoded.bankapi.ui.theme.BankAPITheme
-
+import com.joincoded.bankapi.viewmodel.BankViewModel
+import androidx.navigation.compose.rememberNavController
 
 
 class MainActivity : ComponentActivity() {
@@ -27,8 +32,25 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             BankAPITheme {
+                val navController = rememberNavController()
+                val viewModel: BankViewModel = viewModel()
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(name = "name", modifier = Modifier.padding(innerPadding))
+
+//                    YallaBankingSignUpScreen(
+//
+//                        viewModel = viewModel,
+//                        modifier = Modifier.padding(innerPadding)
+//                    )
+                    BankNavHost(
+                        modifier = Modifier.padding(innerPadding),
+                    )
+
+//                    CompleteProfileScreen(
+//                        viewModel = viewModel
+//                    )
+                    //YallaBankingProfileScreen( viewModel = viewModel)
+
+
                 }
             }
         }
@@ -37,18 +59,3 @@ class MainActivity : ComponentActivity() {
 
 
 
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    BankAPITheme {
-        Greeting("Android")
-    }
-}

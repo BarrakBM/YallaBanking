@@ -7,6 +7,7 @@ import com.joincoded.bankapi.dto.RegistrationRequestDTO
 import retrofit2.http.Body
 import retrofit2.http.POST
 import retrofit2.Response
+import retrofit2.http.Header
 
 interface AuthApi {
 
@@ -19,5 +20,5 @@ interface AuthApi {
         @Body request: RegistrationRequestDTO): Response<Any>
 
     @POST("api/auth/check-token")
-    suspend fun checkToken(s: String): Response<CheckTokenResponse>
+    suspend fun checkToken(@Header ("Authorization") s: String): Response<CheckTokenResponse>
 }

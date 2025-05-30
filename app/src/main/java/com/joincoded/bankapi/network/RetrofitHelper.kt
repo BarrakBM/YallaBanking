@@ -10,8 +10,8 @@ object RetrofitHelper {
     //private const val AUTH_BASE_URL = "http://192.168.1.x:8081/"  // phone
 
     // Banking microservice (Port 8080)
-    private const val BANK_BASE_URL = "http://10.0.2.2:8080/"  // Android emulator
-    // private const val BANK_BASE_URL = "http://192.168.1.x:8080/"  // phone
+    private const val BANK_BASE_URL = "http://10.0.2.2:8082/"  // Android emulator
+    //private const val BANK_BASE_URL = "http://192.168.1.x:8082/"  // phone
 
     fun getAuthInstance(): Retrofit {
         return Retrofit.Builder()

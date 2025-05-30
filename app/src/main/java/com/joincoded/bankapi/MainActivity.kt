@@ -29,7 +29,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             BankAPITheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-BankNavHost(modifier = Modifier.padding(innerPadding))
+                    BankNavHost(modifier = Modifier.padding(innerPadding))
                 // Greeting(name = "name", modifier = Modifier.padding(innerPadding))
                 }
             }

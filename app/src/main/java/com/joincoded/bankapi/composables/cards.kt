@@ -16,6 +16,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -35,14 +36,13 @@ fun CardsScreen(
     var selectedTab by remember { mutableStateOf(1) } // cards tab selected
 
     LaunchedEffect(Unit) {
-        viewModel.loadUserAccount()  // fetch account info from backend
+        viewModel.loadUserAccount()  // Fetch account info from backend
     }
 
     Scaffold(
         topBar = {
             TopAppBar(
                 title = {
-
                     Box(
                         modifier = Modifier.fillMaxWidth(),
                         contentAlignment = Alignment.Center
@@ -56,7 +56,7 @@ fun CardsScreen(
                     }
                 },
                 navigationIcon = {
-                    IconButton(onClick = { TODO("back to homepage") }) {
+                    IconButton(onClick = { /* Handle back navigation */ }) {
                         Icon(
                             imageVector = Icons.Default.ArrowBack,
                             contentDescription = "Back",
@@ -64,7 +64,6 @@ fun CardsScreen(
                         )
                     }
                 },
-
                 actions = {
                     IconButton(onClick = { }, enabled = false) {
                     }
@@ -91,17 +90,16 @@ fun CardsScreen(
             verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
 
-
             // always show real account data from backend
             item {
                 CardSection(
-                    sectionTitle = "YOUR CARD",
-                    cardTitle = "Yalla Banking",
+                    sectionTitle = "YOUR CARD",           // ORIGINAL: Section title preserved
+                    cardTitle = "Yalla Banking",          // ORIGINAL: Card title preserved
 
                     // take last for digits of balance to show as card number
-                    cardNumber = "**** **** **** ${viewModel.userAccount?.balance?.toString()?.takeLast(4) ?: "0000"}",
+                    cardNumber = "**** **** **** ${viewModel.currentUserId?.toString()?.padStart(4, '0') ?: "0000"}",
 
-                    cardHolder = viewModel.userAccount?.name ?: "Loading...",
+                    cardHolder = viewModel.userAccount?.name ?: "card holder",
                     expiryDate = "08/29",
 
                     // blue card means active card, grey card means not
@@ -112,7 +110,7 @@ fun CardsScreen(
                 )
             }
 
-            // TODO: Replace it with group data
+            // TODO: replace with real data
             item {
                 CardSection(
                     sectionTitle = "GROUP CARD",
@@ -123,25 +121,25 @@ fun CardsScreen(
                     expiryDate = "12/25",
                     cardColor = Color(0xFF34495E),
                     cardIcon = Icons.Outlined.AccountBox,
-                    onViewDetailsClick = onNavigateToCardDetails // navigate to card details
+                    onViewDetailsClick = onNavigateToCardDetails
                 )
             }
         }
     }
 }
 
-// card container
+
 @Composable
 fun CardSection(
     sectionTitle: String,
-    sectionSubtitle: String? = null, // (admin)
+    sectionSubtitle: String? = null,
     cardTitle: String,
     cardNumber: String,
     cardHolder: String,
     expiryDate: String,
     cardColor: Color,
     cardIcon: ImageVector,
-    onViewDetailsClick: () -> Unit = {}  // added click handler for CardDetails navigation
+    onViewDetailsClick: () -> Unit = {}
 ) {
     Column {
 
@@ -156,7 +154,7 @@ fun CardSection(
             )
             Spacer(modifier = Modifier.width(8.dp))
             Text(
-                text = sectionTitle,                // ORIGINAL: Section title (e.g., "YOUR CARD")
+                text = sectionTitle,
                 fontSize = 12.sp,
                 color = Color(0xFF999999),
                 fontWeight = FontWeight.Medium,
@@ -207,7 +205,6 @@ fun CardSection(
     }
 }
 
-// card details
 @Composable
 fun DetailedBankCard(
     cardTitle: String,
@@ -222,14 +219,14 @@ fun DetailedBankCard(
         modifier = Modifier
             .fillMaxWidth()
             .height(200.dp),
-        colors = CardDefaults.cardColors(containerColor = backgroundColor), // Dynamic background color
+        colors = CardDefaults.cardColors(containerColor = backgroundColor),
         shape = RoundedCornerShape(12.dp)
     ) {
 
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(20.dp)  // ORIGINAL: Inner padding for card content
+                .padding(20.dp)
         ) {
 
             Text(
@@ -245,11 +242,11 @@ fun DetailedBankCard(
                     .align(Alignment.TopEnd)
                     .size(40.dp, 24.dp)
                     .clip(RoundedCornerShape(4.dp))
-                    .background(Color.White),  // White background for logo
+                    .background(Color.White),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    // ORIGINAL: Always shows "VISA" regardless of card type
+
                     text = if (cardTitle.contains("Group")) "VISA" else "VISA",
                     color = Color(0xFF2C3E50),
                     fontSize = 12.sp,
@@ -257,29 +254,49 @@ fun DetailedBankCard(
                 )
             }
 
-            // ORIGINAL: Card Number display in center left
-            Text(
-                text = cardNumber,  // Masked card number (e.g., "**** 1234")
-                color = Color.White,
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Normal,
-                modifier = Modifier.align(Alignment.CenterStart)
-            )
 
-            // ORIGINAL: Expiry date section at bottom left
+
+            // expiration date
             Column(
                 modifier = Modifier.align(Alignment.BottomStart)
             ) {
                 Text(
-                    text = "Valid thru",  // ORIGINAL: Label text
-                    color = Color(0xFFCCCCCC),  // Light gray for label
-                    fontSize = 10.sp
+                    text = "Card Holder",
+                    color = Color(0xFFCCCCCC),
+                    fontSize = 13.sp,
+                    lineHeight = 10.sp
                 )
                 Text(
-                    text = expiryDate,  // Shows expiry date (e.g., "08/25")
+                    text = cardHolder,
                     color = Color.White,
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Normal
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.Normal,
+                    lineHeight = 12.sp
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))  // Add controlled spacing before card number
+
+                Text(
+                    text = cardNumber,
+                    color = Color.White,
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Normal,
+                )
+
+                Spacer(modifier = Modifier.height(3.dp))
+
+                Text(
+                    text = "Valid thru",
+                    color = Color(0xFFCCCCCC),
+                    fontSize = 10.sp,
+                    lineHeight = 10.sp  // Remove extra line spacing
+                )
+                Text(
+                    text = expiryDate,
+                    color = Color.White,
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Normal,
+                    lineHeight = 12.sp  // Remove extra line spacing
                 )
             }
         }
@@ -375,8 +392,8 @@ fun CardsBottomNavigationBar(
 
 @Preview(showBackground = true)
 @Composable
-fun CardsScreenPreview() {
+fun YallaBankingCardsScreenPreview() {
     MaterialTheme {
-        CardsScreen()
+        CardsScreen()  // ORIGINAL: Shows CardsScreen with default parameters
     }
 }

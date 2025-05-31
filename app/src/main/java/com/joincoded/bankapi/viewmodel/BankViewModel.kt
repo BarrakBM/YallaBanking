@@ -8,18 +8,11 @@ import androidx.lifecycle.viewModelScope
 import com.joincoded.bankapi.api.AccountApi
 import com.joincoded.bankapi.api.AuthApi
 import com.joincoded.bankapi.api.GroupApi
-import com.joincoded.bankapi.dto.AuthenticationRequest
-import com.joincoded.bankapi.dto.GroupDetailsDTO
-import com.joincoded.bankapi.dto.InformationDTO
-import com.joincoded.bankapi.dto.RegistrationRequestDTO
-import com.joincoded.bankapi.dto.allTransactionDTO
+import com.joincoded.bankapi.dto.*
 import com.joincoded.bankapi.network.RetrofitHelper
-
-
 import kotlinx.coroutines.launch
 
 class BankViewModel : ViewModel() {
-
 
     //create a service to talk to authentication in backend (port 8081)
     // include login register etc...
@@ -44,17 +37,14 @@ class BankViewModel : ViewModel() {
     var isLoggedIn: Boolean by mutableStateOf(false)
     var needSignUp: Boolean by mutableStateOf(false)
 
-
     // this to store user account info (name, balance, active ..)
     var userAccount: InformationDTO? by mutableStateOf(null)
 
     // this to list all user's transaction history
     var transactionHistory: List<allTransactionDTO> by mutableStateOf(emptyList())
 
-
     // list of groups where user is a member, and user to display group card
     var userGroups: List<GroupDetailsDTO> by mutableStateOf(emptyList())
-
 
     //UI state variables:
 
@@ -64,20 +54,16 @@ class BankViewModel : ViewModel() {
     // error message to display to user
     var errorMessage: String? by mutableStateOf(null)
 
-
     // success message for example (transfer complete or login successful
     var successMessage: String? by mutableStateOf(null)
 
     fun login(username: String, password: String) {
-
         // running code in background (it won't freeze)
         viewModelScope.launch {
-
             isLoading = true
             errorMessage = null
 
             try {
-
                 // make a network request to authentication service
                 // create an authentioction request with username/password
                 // send post request to the endpoint
@@ -97,12 +83,11 @@ class BankViewModel : ViewModel() {
                         checkToken()
 
                         val account = accountApiService.viewInformation("Bearer $authToken")
-                        if (account.isSuccessful)
-                        {needSignUp = false}
-                        else {
+                        if (account.isSuccessful) {
+                            needSignUp = false
+                        } else {
                             needSignUp = true
                         }
-
 
                         // get user account info
                         loadUserAccount()
@@ -125,15 +110,12 @@ class BankViewModel : ViewModel() {
         }
     }
 
-
     fun register(username: String, password: String) {
         viewModelScope.launch {
             isLoading = true          // Show loading spinner
             errorMessage = null       // Clear any previous error messages
 
             try {
-
-
                 // make network request to authentication service
                 // create a dto and send a post request
                 val response = authApiService.register(RegistrationRequestDTO(username, password))
@@ -141,8 +123,6 @@ class BankViewModel : ViewModel() {
                 // check if regestration is successful
                 if (response.isSuccessful) {
                     successMessage = "Registration successful!"
-
-
                 } else {
                     // failed registration
                     errorMessage = "Registration failed"
@@ -152,7 +132,6 @@ class BankViewModel : ViewModel() {
                 // network error (no internet, server down, timeout, etc.)
                 errorMessage = "Network error: ${e.message}"
             } finally {
-
                 isLoading = false
             }
         }
@@ -163,14 +142,12 @@ class BankViewModel : ViewModel() {
         authToken?.let { token ->
             viewModelScope.launch {
                 try {
-
                     // send token validation request to authentication service
                     val response = authApiService.checkToken("Bearer $token")
 
                     if (response.isSuccessful) {
                         // if token is valid extract user Id
                         currentUserId = response.body()?.userId
-//                        if (response.body().NeedRegistor)
                     } else {
                         // Token is invalid or expired - log user out
                         logout()
@@ -194,7 +171,6 @@ class BankViewModel : ViewModel() {
         transactionHistory = emptyList()
         userGroups = emptyList()
 
-
         successMessage = "Logged out successfully"
     }
 
@@ -202,12 +178,10 @@ class BankViewModel : ViewModel() {
         // proceed if user has token
         authToken?.let { token ->
             viewModelScope.launch {
-
                 isLoading = true
                 errorMessage = null
 
                 try {
-
                     // request account info from tha banking service
                     val response = accountApiService.viewInformation("Bearer $token")
 
@@ -215,12 +189,10 @@ class BankViewModel : ViewModel() {
                     if (response.isSuccessful) {
                         // account found: store the info
                         userAccount = response.body()
-
                     } else if (response.code() == 404) {
                         // User doesn't have an account yet (new user)
                         userAccount = null
                         errorMessage = "No account found. Please create an account."
-
                     } else {
                         // server error, permission denied, etc...
                         errorMessage = "Failed to load account information"
@@ -236,4 +208,84 @@ class BankViewModel : ViewModel() {
         }
     }
 
+    fun loadTransactionHistory() {
+        authToken?.let { token ->
+            viewModelScope.launch {
+                isLoading = true
+                errorMessage = null
+
+                try {
+                    val response = accountApiService.userTransactionHistory("Bearer $token")
+
+                    if (response.isSuccessful) {
+                        response.body()?.let { historyResponse ->
+                            transactionHistory = historyResponse.transactionHistory
+                        }
+                    } else {
+                        errorMessage = "Failed to load transaction history"
+                    }
+                } catch (e: Exception) {
+                    errorMessage = "Network error: ${e.message}"
+                } finally {
+                    isLoading = false
+                }
+            }
+        }
+    }
+
+    fun deactivateAccount() {
+        authToken?.let { token ->
+            viewModelScope.launch {
+                isLoading = true
+                errorMessage = null
+
+                try {
+                    val response = accountApiService.deactiveAccount("Bearer $token")
+
+                    if (response.isSuccessful) {
+                        // Reload account info to get updated status
+                        loadUserAccount()
+                        successMessage = if (userAccount?.isActive == false) {
+                            "Account deactivated successfully"
+                        } else {
+                            "Account activated successfully"
+                        }
+                    } else {
+                        errorMessage = "Failed to update account status"
+                    }
+                } catch (e: Exception) {
+                    errorMessage = "Network error: ${e.message}"
+                } finally {
+                    isLoading = false
+                }
+            }
+        }
+    }
+
+    fun transferMoney(destinationId: Long, amount: java.math.BigDecimal) {
+        authToken?.let { token ->
+            viewModelScope.launch {
+                isLoading = true
+                errorMessage = null
+
+                try {
+                    val transferInfo = TransferInfoDTO(destinationId, amount)
+                    val response = accountApiService.transferMoney("Bearer $token", transferInfo)
+
+                    if (response.isSuccessful) {
+                        // Reload account info and transaction history
+                        loadUserAccount()
+                        loadTransactionHistory()
+                        successMessage = "Transfer completed successfully"
+                    } else {
+                        errorMessage = "Transfer failed: ${response.message()}"
+                    }
+                } catch (e: Exception) {
+                    errorMessage = "Network error: ${e.message}"
+                } finally {
+                    isLoading = false
+                }
+            }
+        }
+    }
 }

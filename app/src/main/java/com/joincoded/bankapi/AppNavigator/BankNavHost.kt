@@ -10,93 +10,101 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.joincoded.bankapi.composables.CardsScreen
 import com.joincoded.bankapi.composables.YallaBankingLoginScreen
+import com.joincoded.bankapi.composables.CardDetailsScreen
 import com.joincoded.bankapi.viewmodel.BankViewModel
 
 object AppDestinations {
     const val lOGIN = "logIn"
     const val CREATEPROFILE = "createProfile"
-    const val SIGNUP ="signUp"
+    const val SIGNUP = "signUp"
     const val HOMEPAGE = "homePage"
     const val CARDS = "composable/cards"
-    const val CARDDETAILS ="cardDetails"
-    const val TRANSFER ="tranfer"
-    const val GROUPS ="groups"
-    const val CREATEGROUP ="createGroup"
+    const val CARDDETAILS = "cardDetails"
+    const val TRANSFER = "transfer"
+    const val GROUPS = "groups"
+    const val CREATEGROUP = "createGroup"
     const val GROUPDETAIL = "groupDetail/{id}"
     const val ADDMEMBER = "addMember"
     const val FUNDGROUP = "fundGroup"
     const val PROFILE = "profile"
 
-    fun groupDetail(id: Int) = "group_detail/$id"
+    fun groupDetail(id: Int) = "groupDetail/$id"
 }
 
 @Composable
 fun BankNavHost(
     modifier: Modifier,
-    navController:
-    NavHostController = rememberNavController()){
-
+    navController: NavHostController = rememberNavController()
+) {
     val bankViewModel: BankViewModel = viewModel()
+
     NavHost(
         modifier = modifier,
         navController = navController,
         startDestination = AppDestinations.lOGIN
-    ){
-        composable(AppDestinations.lOGIN){
+    ) {
+        composable(AppDestinations.lOGIN) {
             YallaBankingLoginScreen(
-
                 bankViewModel,
                 navController
             )
-
-
         }
 
-        composable (AppDestinations.SIGNUP){
-
-
+        composable(AppDestinations.SIGNUP) {
             Text(text = "Sign Up")
         }
 
-
-        composable (AppDestinations.HOMEPAGE){
-
-            CardsScreen(bankViewModel,{
-                navController.navigate(AppDestinations.CARDDETAILS)
-            })
-        }
-        composable (AppDestinations.CARDS){
-            Text(text = "Card Detail")
+        composable(AppDestinations.HOMEPAGE) {
+            CardsScreen(
+                viewModel = bankViewModel,
+                onNavigateToCardDetails = {
+                    navController.navigate(AppDestinations.CARDDETAILS)
+                }
+            )
         }
 
-        composable (AppDestinations.CARDDETAILS){
-
-
+        composable(AppDestinations.CARDS) {
+            CardsScreen(
+                viewModel = bankViewModel,
+                onNavigateToCardDetails = {
+                    navController.navigate(AppDestinations.CARDDETAILS)
+                }
+            )
         }
 
-        composable (AppDestinations.TRANSFER){
-
-
-        }
-        composable (AppDestinations.GROUPS){
-
-        }
-        composable (AppDestinations.CREATEGROUP){
-
-        }
-        composable (AppDestinations.GROUPDETAIL){
-
-        }
-        composable (AppDestinations.ADDMEMBER){
-
-        }
-        composable (AppDestinations.FUNDGROUP){
-
-        }
-        composable (AppDestinations.PROFILE){
-
+        composable(AppDestinations.CARDDETAILS) {
+            CardDetailsScreen(
+                viewModel = bankViewModel,
+                navController = navController
+            )
         }
 
+        composable(AppDestinations.TRANSFER) {
+            Text(text = "Transfer Screen - To be implemented")
+        }
 
+        composable(AppDestinations.GROUPS) {
+            Text(text = "Groups Screen - To be implemented")
+        }
+
+        composable(AppDestinations.CREATEGROUP) {
+            Text(text = "Create Group Screen - To be implemented")
+        }
+
+        composable(AppDestinations.GROUPDETAIL) {
+            Text(text = "Group Detail Screen - To be implemented")
+        }
+
+        composable(AppDestinations.ADDMEMBER) {
+            Text(text = "Add Member Screen - To be implemented")
+        }
+
+        composable(AppDestinations.FUNDGROUP) {
+            Text(text = "Fund Group Screen - To be implemented")
+        }
+
+        composable(AppDestinations.PROFILE) {
+            Text(text = "Profile Screen - To be implemented")
+        }
     }
 }

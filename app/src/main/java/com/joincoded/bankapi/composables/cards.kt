@@ -392,7 +392,7 @@ fun CardsBottomNavigationBar(
 
 @Preview(showBackground = true)
 @Composable
-fun YallaBankingCardsScreenPreview() {
+fun CardsScreenPreview() {
     MaterialTheme {
         CardsScreen()  // ORIGINAL: Shows CardsScreen with default parameters
     }

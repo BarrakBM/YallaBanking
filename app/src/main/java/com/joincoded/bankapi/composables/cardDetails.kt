@@ -35,24 +35,23 @@ fun CardDetailsScreen(
     viewModel: BankViewModel = viewModel(),
     navController: NavController
 ) {
-    var selectedTab by remember { mutableStateOf(1) } // Cards tab selected
+    var selectedTab by remember { mutableStateOf(1) } // cards tab selected
     val coroutineScope = rememberCoroutineScope()
 
-    // Load transaction history when screen opens
+    // load transaction history when screen opens
     LaunchedEffect(Unit) {
         viewModel.loadTransactionHistory()
     }
 
-    // Use Box with fillMaxSize to ensure full screen coverage
-    Box(
+
+    Scaffold(
+
         modifier = Modifier
-            .fillMaxSize()
             .background(Color(0xFFF8F9FA))
-    ) {
-        Scaffold(
-            modifier = Modifier.fillMaxSize(), // Ensure Scaffold takes full size
+            .fillMaxSize(),
             topBar = {
-                TopAppBar(
+                CenterAlignedTopAppBar(
+                    modifier = Modifier,
                     title = {
                         Text(
                             text = "Card Details",
@@ -73,14 +72,12 @@ fun CardDetailsScreen(
                         }
                     },
                     actions = {
-                        // Add empty action to balance the layout with navigation icon
+
                         IconButton(onClick = { }, enabled = false) {
                         }
                     },
-                    colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = Color.White
+
                     )
-                )
             },
             bottomBar = {
                 CardsBottomNavigationBar(
@@ -92,13 +89,13 @@ fun CardDetailsScreen(
         ) { paddingValues ->
             LazyColumn(
                 modifier = Modifier
-                    .fillMaxSize() // Ensure LazyColumn takes full available size
+                    .fillMaxSize() //
                     .padding(paddingValues),
                 contentPadding = PaddingValues(16.dp),
                 verticalArrangement = Arrangement.spacedBy(24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally // Center content horizontally
             ) {
-                // Card Balance Section
+                // card Balance Section
                 item {
                     CardBalanceSection(
                         viewModel = viewModel,
@@ -106,7 +103,7 @@ fun CardDetailsScreen(
                     )
                 }
 
-                // Quick Actions Section
+
                 item {
                     QuickActionsSection(
                         viewModel = viewModel,
@@ -120,7 +117,7 @@ fun CardDetailsScreen(
                     )
                 }
 
-                // Recent Transactions Section
+                // recent transactions
                 item {
                     Box(
                         modifier = Modifier.fillMaxWidth(),
@@ -135,7 +132,7 @@ fun CardDetailsScreen(
                     }
                 }
 
-                // Transaction List
+                // transaction List
                 if (viewModel.transactionHistory.isEmpty()) {
                     item {
                         Column(
@@ -150,7 +147,7 @@ fun CardDetailsScreen(
                                 color = Color(0xFF999999),
                                 fontSize = 14.sp
                             )
-                            // Add debug info to see loading state
+                            // when fetching transactions
                             if (viewModel.isLoading) {
                                 Text(
                                     text = "Loading transactions...",
@@ -158,7 +155,7 @@ fun CardDetailsScreen(
                                     fontSize = 12.sp
                                 )
                             }
-                            // Show error if any
+                            // check if any errors
                             viewModel.errorMessage?.let { error ->
                                 Text(
                                     text = "Error: $error",
@@ -173,15 +170,15 @@ fun CardDetailsScreen(
                         TransactionItem(
                             transaction = transaction,
                             userAccountName = viewModel.userAccount?.name,
-                            modifier = Modifier.fillMaxWidth() // Ensure full width
+                            modifier = Modifier.fillMaxWidth()
                         )
                     }
                 }
             }
         }
-    }
 }
 
+@SuppressLint("DefaultLocale")
 @Composable
 fun CardBalanceSection(
     viewModel: BankViewModel,
@@ -204,7 +201,7 @@ fun CardBalanceSection(
                 .fillMaxSize()
                 .padding(20.dp)
         ) {
-            // Balance Label
+            // balance Label
             Text(
                 text = if (isActive) "Balance" else "DEACTIVATED",
                 color = Color.White,
@@ -243,14 +240,14 @@ fun CardBalanceSection(
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    text = "AED",
+                    text = "KWD",
                     color = Color(0xFFCCCCCC),
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Normal
                 )
             }
 
-            // Card Number and Expiry
+            // card Number and expiry
             Row(
                 modifier = Modifier
                     .align(Alignment.BottomStart)
@@ -259,6 +256,7 @@ fun CardBalanceSection(
                 verticalAlignment = Alignment.Bottom
             ) {
                 Text(
+                    // get user id and parse it
                     text = "**** ${viewModel.currentUserId?.toString()?.padStart(4, '0') ?: "0000"}",
                     color = Color.White,
                     fontSize = 14.sp,
@@ -363,7 +361,7 @@ fun TransactionItem(
             .padding(vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // Transaction Icon
+        // transaction Icon
         Box(
             modifier = Modifier
                 .size(48.dp)
@@ -381,7 +379,7 @@ fun TransactionItem(
 
         Spacer(modifier = Modifier.width(16.dp))
 
-        // Transaction Details
+        // transactions details
         Column(
             modifier = Modifier.weight(1f)
         ) {
@@ -409,7 +407,7 @@ fun TransactionItem(
 
         Spacer(modifier = Modifier.width(16.dp))
 
-        // Amount
+        // amount
         Column(
             horizontalAlignment = Alignment.End
         ) {
@@ -425,7 +423,7 @@ fun TransactionItem(
                 fontWeight = FontWeight.Medium
             )
             Text(
-                text = "AED",
+                text = "KWD",
                 fontSize = 12.sp,
                 color = Color(0xFF666666)
             )

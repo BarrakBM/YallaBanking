@@ -16,41 +16,29 @@ import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.joincoded.bankapi.AppNavigator.BankNavHost
 import com.joincoded.bankapi.ui.theme.BankAPITheme
 
-
+// Add these imports for hiding status bar
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
+        // Hide the status bar
+
         setContent {
             BankAPITheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    BankNavHost(modifier = Modifier.padding(innerPadding))
-                // Greeting(name = "name", modifier = Modifier.padding(innerPadding))
-                }
+                    BankNavHost()
+
             }
         }
     }
 }
 
-
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    BankAPITheme {
-        Greeting("Android")
-    }
-}

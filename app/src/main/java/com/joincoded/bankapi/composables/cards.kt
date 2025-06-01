@@ -39,28 +39,21 @@ fun CardsScreen(
         viewModel.loadUserAccount()  // Fetch account info from backend
     }
 
-    // Use Box with fillMaxSize to ensure full screen coverage
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color(0xFFF8F9FA))
-    ) {
         Scaffold(
-            modifier = Modifier.fillMaxSize(), // Ensure Scaffold takes full size
+            modifier = Modifier
+                .background(Color(0xFFF8F9FA))
+                .fillMaxSize(), // Ensure Scaffold takes full size
             topBar = {
-                TopAppBar(
+                CenterAlignedTopAppBar(
+                    modifier = Modifier,
                     title = {
-                        Box(
-                            modifier = Modifier.fillMaxWidth(),
-                            contentAlignment = Alignment.Center
-                        ) {
                             Text(
                                 text = "Cards",
                                 fontSize = 18.sp,
                                 fontWeight = FontWeight.Medium,
                                 color = Color(0xFF2C3E50)
                             )
-                        }
+
                     },
                     navigationIcon = {
                         IconButton(onClick = { /* Handle back navigation */ }) {
@@ -75,9 +68,7 @@ fun CardsScreen(
                         IconButton(onClick = { }, enabled = false) {
                         }
                     },
-                    colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = Color.White
-                    )
+
                 )
             },
             bottomBar = {
@@ -133,7 +124,7 @@ fun CardsScreen(
                 }
             }
         }
-    }
+
 }
 
 

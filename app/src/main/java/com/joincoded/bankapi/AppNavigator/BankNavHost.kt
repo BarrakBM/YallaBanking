@@ -33,13 +33,11 @@ object AppDestinations {
 
 @Composable
 fun BankNavHost(
-    modifier: Modifier,
     navController: NavHostController = rememberNavController()
 ) {
     val bankViewModel: BankViewModel = viewModel()
 
     NavHost(
-        modifier = modifier,
         navController = navController,
         startDestination = AppDestinations.lOGIN
     ) {

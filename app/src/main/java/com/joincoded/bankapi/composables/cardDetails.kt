@@ -43,98 +43,139 @@ fun CardDetailsScreen(
         viewModel.loadTransactionHistory()
     }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        text = "Card Details",
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Medium,
-                        color = Color(0xFF2C3E50),
-                        modifier = Modifier.fillMaxWidth(),
-                        textAlign = TextAlign.Center
-                    )
-                },
-                navigationIcon = {
-                    IconButton(onClick = { navController.navigateUp() }) {
-                        Icon(
-                            imageVector = Icons.Default.ArrowBack,
-                            contentDescription = "Back",
-                            tint = Color(0xFF2C3E50)
+    // Use Box with fillMaxSize to ensure full screen coverage
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color(0xFFF8F9FA))
+    ) {
+        Scaffold(
+            modifier = Modifier.fillMaxSize(), // Ensure Scaffold takes full size
+            topBar = {
+                TopAppBar(
+                    title = {
+                        Text(
+                            text = "Card Details",
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = Color(0xFF2C3E50),
+                            modifier = Modifier.fillMaxWidth(),
+                            textAlign = TextAlign.Center
                         )
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color.White
-                )
-            )
-        },
-        bottomBar = {
-            CardsBottomNavigationBar(
-                selectedTab = selectedTab,
-                onTabSelected = { selectedTab = it },
-            )
-        },
-        containerColor = Color(0xFFF8F9FA)
-    ) { paddingValues ->
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues),
-            contentPadding = PaddingValues(16.dp),
-            verticalArrangement = Arrangement.spacedBy(24.dp)
-        ) {
-            // Card Balance Section
-            item {
-                CardBalanceSection(viewModel)
-            }
-
-            // Quick Actions Section
-            item {
-                QuickActionsSection(
-                    viewModel = viewModel,
-                    navController = navController,
-                    onDeactivate = {
-                        coroutineScope.launch {
-                            viewModel.deactivateAccount()
+                    },
+                    navigationIcon = {
+                        IconButton(onClick = { navController.navigateUp() }) {
+                            Icon(
+                                imageVector = Icons.Default.ArrowBack,
+                                contentDescription = "Back",
+                                tint = Color(0xFF2C3E50)
+                            )
                         }
-                    }
+                    },
+                    actions = {
+                        // Add empty action to balance the layout with navigation icon
+                        IconButton(onClick = { }, enabled = false) {
+                        }
+                    },
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = Color.White
+                    )
                 )
-            }
-
-            // Recent Transactions Section
-            item {
-                Text(
-                    text = "Recent Transactions",
-                    fontSize = 18.sp,
-                    color = Color(0xFF2C3E50),
-                    fontWeight = FontWeight.Medium
+            },
+            bottomBar = {
+                CardsBottomNavigationBar(
+                    selectedTab = selectedTab,
+                    onTabSelected = { selectedTab = it },
                 )
-            }
+            },
+            containerColor = Color(0xFFF8F9FA)
+        ) { paddingValues ->
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize() // Ensure LazyColumn takes full available size
+                    .padding(paddingValues),
+                contentPadding = PaddingValues(16.dp),
+                verticalArrangement = Arrangement.spacedBy(24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally // Center content horizontally
+            ) {
+                // Card Balance Section
+                item {
+                    CardBalanceSection(
+                        viewModel = viewModel,
+                        modifier = Modifier.fillMaxWidth() // Ensure full width
+                    )
+                }
 
-            // Transaction List
-            if (viewModel.transactionHistory.isEmpty()) {
+                // Quick Actions Section
+                item {
+                    QuickActionsSection(
+                        viewModel = viewModel,
+                        navController = navController,
+                        onDeactivate = {
+                            coroutineScope.launch {
+                                viewModel.deactivateAccount()
+                            }
+                        },
+                        modifier = Modifier.fillMaxWidth() // Ensure full width
+                    )
+                }
+
+                // Recent Transactions Section
                 item {
                     Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(100.dp),
-                        contentAlignment = Alignment.Center
+                        modifier = Modifier.fillMaxWidth(),
+                        contentAlignment = Alignment.CenterStart
                     ) {
                         Text(
-                            text = "No transactions yet",
-                            color = Color(0xFF999999),
-                            fontSize = 14.sp
+                            text = "Recent Transactions",
+                            fontSize = 18.sp,
+                            color = Color(0xFF2C3E50),
+                            fontWeight = FontWeight.Medium
                         )
                     }
                 }
-            } else {
-                items(viewModel.transactionHistory) { transaction ->
-                    TransactionItem(
-                        transaction = transaction,
-                        userAccountName = viewModel.userAccount?.name
-                    )
+
+                // Transaction List
+                if (viewModel.transactionHistory.isEmpty()) {
+                    item {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(100.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center
+                        ) {
+                            Text(
+                                text = "No transactions yet",
+                                color = Color(0xFF999999),
+                                fontSize = 14.sp
+                            )
+                            // Add debug info to see loading state
+                            if (viewModel.isLoading) {
+                                Text(
+                                    text = "Loading transactions...",
+                                    color = Color(0xFF666666),
+                                    fontSize = 12.sp
+                                )
+                            }
+                            // Show error if any
+                            viewModel.errorMessage?.let { error ->
+                                Text(
+                                    text = "Error: $error",
+                                    color = Color(0xFFFF6B6B),
+                                    fontSize = 12.sp
+                                )
+                            }
+                        }
+                    }
+                } else {
+                    items(viewModel.transactionHistory) { transaction ->
+                        TransactionItem(
+                            transaction = transaction,
+                            userAccountName = viewModel.userAccount?.name,
+                            modifier = Modifier.fillMaxWidth() // Ensure full width
+                        )
+                    }
                 }
             }
         }
@@ -142,14 +183,16 @@ fun CardDetailsScreen(
 }
 
 @Composable
-fun CardBalanceSection(viewModel: BankViewModel) {
+fun CardBalanceSection(
+    viewModel: BankViewModel,
+    modifier: Modifier = Modifier
+) {
     val userAccount = viewModel.userAccount
     val balance = userAccount?.balance ?: 0.0
     val isActive = userAccount?.isActive ?: false
 
     Card(
-        modifier = Modifier
-            .fillMaxWidth()
+        modifier = modifier
             .height(140.dp),
         colors = CardDefaults.cardColors(
             containerColor = if (isActive) Color(0xFF2C3E50) else Color(0xFF999999)
@@ -236,10 +279,11 @@ fun CardBalanceSection(viewModel: BankViewModel) {
 fun QuickActionsSection(
     viewModel: BankViewModel,
     navController: NavController,
-    onDeactivate: () -> Unit
+    onDeactivate: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     Row(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier,
         horizontalArrangement = Arrangement.SpaceEvenly
     ) {
         QuickActionButton(
@@ -297,7 +341,11 @@ fun QuickActionButton(
 
 @SuppressLint("DefaultLocale")
 @Composable
-fun TransactionItem(transaction: allTransactionDTO, userAccountName: String?) {
+fun TransactionItem(
+    transaction: allTransactionDTO,
+    userAccountName: String?,
+    modifier: Modifier = Modifier
+) {
     val isOutgoing = transaction.from.equals(userAccountName, ignoreCase = true)
     val icon = when (transaction.type) {
         "user" -> if (isOutgoing) Icons.Default.Send else Icons.Default.Person
@@ -311,8 +359,7 @@ fun TransactionItem(transaction: allTransactionDTO, userAccountName: String?) {
     }
 
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
+        modifier = modifier
             .padding(vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -385,4 +432,3 @@ fun TransactionItem(transaction: allTransactionDTO, userAccountName: String?) {
         }
     }
 }
-

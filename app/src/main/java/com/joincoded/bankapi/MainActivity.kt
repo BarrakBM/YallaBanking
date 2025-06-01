@@ -1,6 +1,7 @@
 package com.joincoded.bankapi
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -28,10 +29,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             BankAPITheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    BankNavHost(modifier = Modifier.padding(innerPadding))
-                // Greeting(name = "name", modifier = Modifier.padding(innerPadding))
-                }
+                    BankNavHost(modifier = Modifier)
             }
         }
     }

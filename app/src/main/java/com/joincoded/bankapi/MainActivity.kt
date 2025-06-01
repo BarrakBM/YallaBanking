@@ -1,6 +1,7 @@
 package com.joincoded.bankapi
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -16,29 +17,38 @@ import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.joincoded.bankapi.AppNavigator.BankNavHost
 import com.joincoded.bankapi.ui.theme.BankAPITheme
 
-// Add these imports for hiding status bar
-import androidx.core.view.WindowCompat
-import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.WindowInsetsControllerCompat
+
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-
-        // Hide the status bar
-
         setContent {
             BankAPITheme {
-                    BankNavHost()
-
+                    BankNavHost(modifier = Modifier)
             }
         }
     }
 }
 
+
+
+@Composable
+fun Greeting(name: String, modifier: Modifier = Modifier) {
+    Text(
+        text = "Hello $name!",
+        modifier = modifier
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun GreetingPreview() {
+    BankAPITheme {
+        Greeting("Android")
+    }
+}

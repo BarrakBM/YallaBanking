@@ -39,91 +39,91 @@ fun CardsScreen(
         viewModel.loadUserAccount()  // Fetch account info from backend
     }
 
-        Scaffold(
+    Scaffold(
+        modifier = Modifier
+            .background(Color(0xFFF8F9FA))
+            .fillMaxSize(), // Ensure Scaffold takes full size
+        topBar = {
+            CenterAlignedTopAppBar(
+                modifier = Modifier,
+                title = {
+                    Text(
+                        text = "Cards",
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Medium,
+                        color = Color(0xFF2C3E50)
+                    )
+
+                },
+                navigationIcon = {
+                    IconButton(onClick = { /* Handle back navigation */ }) {
+                        Icon(
+                            imageVector = Icons.Default.ArrowBack,
+                            contentDescription = "Back",
+                            tint = Color(0xFF2C3E50)
+                        )
+                    }
+                },
+                actions = {
+                    IconButton(onClick = { }, enabled = false) {
+                    }
+                },
+
+                )
+        },
+        bottomBar = {
+            CardsBottomNavigationBar(
+                selectedTab = selectedTab,
+                onTabSelected = { selectedTab = it }
+            )
+        },
+        containerColor = Color(0xFFF8F9FA)
+    ) { paddingValues ->
+
+        LazyColumn(
             modifier = Modifier
-                .background(Color(0xFFF8F9FA))
-                .fillMaxSize(), // Ensure Scaffold takes full size
-            topBar = {
-                CenterAlignedTopAppBar(
-                    modifier = Modifier,
-                    title = {
-                            Text(
-                                text = "Cards",
-                                fontSize = 18.sp,
-                                fontWeight = FontWeight.Medium,
-                                color = Color(0xFF2C3E50)
-                            )
+                .fillMaxSize() // Ensure LazyColumn takes full available size
+                .padding(paddingValues),
+            contentPadding = PaddingValues(16.dp),
+            verticalArrangement = Arrangement.spacedBy(24.dp)
+        ) {
 
-                    },
-                    navigationIcon = {
-                        IconButton(onClick = { /* Handle back navigation */ }) {
-                            Icon(
-                                imageVector = Icons.Default.ArrowBack,
-                                contentDescription = "Back",
-                                tint = Color(0xFF2C3E50)
-                            )
-                        }
-                    },
-                    actions = {
-                        IconButton(onClick = { }, enabled = false) {
-                        }
-                    },
+            // always show real account data from backend
+            item {
+                CardSection(
+                    sectionTitle = "YOUR CARD",           // ORIGINAL: Section title preserved
+                    cardTitle = "Yalla Banking",          // ORIGINAL: Card title preserved
 
+                    // take last for digits of balance to show as card number
+                    cardNumber = "**** **** **** ${viewModel.currentUserId?.toString()?.padStart(4, '0') ?: "0000"}",
+
+                    cardHolder = viewModel.userAccount?.name ?: "card holder",
+                    expiryDate = "08/29",
+
+                    // blue card means active card, grey card means not
+                    cardColor = if (viewModel.userAccount?.isActive == true) Color(0xFF2C3E50) else Color(0xFF999999),
+
+                    cardIcon = Icons.Outlined.AccountBox,
+                    onViewDetailsClick = onNavigateToCardDetails // navigate to card details
                 )
-            },
-            bottomBar = {
-                CardsBottomNavigationBar(
-                    selectedTab = selectedTab,
-                    onTabSelected = { selectedTab = it }
+            }
+
+            // TODO: replace with real data
+            item {
+                CardSection(
+                    sectionTitle = "GROUP CARD",
+                    sectionSubtitle = "ADMIN",
+                    cardTitle = "Yalla Group Card",
+                    cardNumber = "**** 8934 7654 1234",
+                    cardHolder = "Team Yalla",
+                    expiryDate = "12/25",
+                    cardColor = Color(0xFF34495E),
+                    cardIcon = Icons.Outlined.AccountBox,
+                    onViewDetailsClick = onNavigateToCardDetails
                 )
-            },
-            containerColor = Color(0xFFF8F9FA)
-        ) { paddingValues ->
-
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize() // Ensure LazyColumn takes full available size
-                    .padding(paddingValues),
-                contentPadding = PaddingValues(16.dp),
-                verticalArrangement = Arrangement.spacedBy(24.dp)
-            ) {
-
-                // always show real account data from backend
-                item {
-                    CardSection(
-                        sectionTitle = "YOUR CARD",           // ORIGINAL: Section title preserved
-                        cardTitle = "Yalla Banking",          // ORIGINAL: Card title preserved
-
-                        // take last for digits of balance to show as card number
-                        cardNumber = "**** **** **** ${viewModel.currentUserId?.toString()?.padStart(4, '0') ?: "0000"}",
-
-                        cardHolder = viewModel.userAccount?.name ?: "card holder",
-                        expiryDate = "08/29",
-
-                        // blue card means active card, grey card means not
-                        cardColor = if (viewModel.userAccount?.isActive == true) Color(0xFF2C3E50) else Color(0xFF999999),
-
-                        cardIcon = Icons.Outlined.AccountBox,
-                        onViewDetailsClick = onNavigateToCardDetails // navigate to card details
-                    )
-                }
-
-                // TODO: replace with real data
-                item {
-                    CardSection(
-                        sectionTitle = "GROUP CARD",
-                        sectionSubtitle = "ADMIN",
-                        cardTitle = "Yalla Group Card",
-                        cardNumber = "**** 8934 7654 1234",
-                        cardHolder = "Team Yalla",
-                        expiryDate = "12/25",
-                        cardColor = Color(0xFF34495E),
-                        cardIcon = Icons.Outlined.AccountBox,
-                        onViewDetailsClick = onNavigateToCardDetails
-                    )
-                }
             }
         }
+    }
 
 }
 

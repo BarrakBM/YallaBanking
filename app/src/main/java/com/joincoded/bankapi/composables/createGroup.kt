@@ -144,12 +144,12 @@ fun CreateGroupScreen(
             }
 
             // Description Section
-            item {
-                DescriptionSection(
-                    description = description,
-                    onDescriptionChange = { description = it }
-                )
-            }
+//            item {
+//                DescriptionSection(
+//                    description = description,
+//                    onDescriptionChange = { description = it }
+//                )
+//            }
 
             // Spacer for button
 //            item {
@@ -336,18 +336,26 @@ fun MemberAvatar(
 ) {
     Box {
         // Member Avatar
-        Box(
-            modifier = Modifier
-                .size(48.dp)
-                .clip(CircleShape)
-                .background(Color(0xFF2C3E50)),
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(
-                imageVector = Icons.Default.Person,
-                contentDescription = member.name,
-                tint = Color.White,
-                modifier = Modifier.size(24.dp)
+        Column {
+            Box(
+                modifier = Modifier
+                    .size(48.dp)
+                    .clip(CircleShape)
+                    .background(Color(0xFF2C3E50)),
+                contentAlignment = Alignment.Center
+            ) {
+
+                Icon(
+                    imageVector = Icons.Default.Person,
+                    contentDescription = member.name,
+                    tint = Color.White,
+                    modifier = Modifier.size(24.dp)
+                )
+
+
+            }
+            Text(
+                text = member.name
             )
         }
 

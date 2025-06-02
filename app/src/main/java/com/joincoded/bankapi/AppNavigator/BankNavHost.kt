@@ -125,11 +125,11 @@ fun BankNavHost(
 
         // Fund Group Screen
         composable(AppDestinations.FUNDGROUP) {
-            val group = bankViewModel.selectedGroup ?: return@composable
+            val group = bankViewModel.selectedGroup
             FundGroupScreen(
                 viewModel = bankViewModel,
                 navController = navController,
-                group = group
+                group = group!!
             )
         }
 

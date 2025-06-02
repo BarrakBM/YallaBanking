@@ -66,7 +66,7 @@ fun GroupsScreen(
                     when (tab) {
                         0 -> navController.navigate(AppDestinations.HOMEPAGE)
                         1 -> navController.navigate(AppDestinations.GROUPS)
-                        2 -> navController.navigate(AppDestinations.TRANSFER)
+                        2 -> navController.navigate(AppDestinations.CARDS)
                         3 -> navController.navigate(AppDestinations.PROFILE)
                     }
                 }
@@ -342,11 +342,11 @@ fun GroupsBottomNavigationBar(
         NavigationBarItem(
             icon = {
                 Icon(
-                    imageVector = if (selectedTab == 2) Icons.Filled.Send else Icons.Outlined.Send,
-                    contentDescription = "Transfer"
+                    imageVector = if (selectedTab == 2) Icons.Filled.CreditCard else Icons.Outlined.CreditCard,
+                    contentDescription = "Cards"
                 )
             },
-            label = { Text("Transfer") },
+            label = { Text("Cards") },
             selected = selectedTab == 2,
             onClick = { onTabSelected(2) },
             colors = NavigationBarItemDefaults.colors(

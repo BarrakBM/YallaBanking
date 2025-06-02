@@ -1,5 +1,6 @@
 package com.joincoded.bankapi.composables
 
+import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -71,20 +72,20 @@ fun TransferScreen(
                 )
             )
         },
-        bottomBar = {
-            TransferBottomNavigationBar(
-                selectedTab = selectedTab,
-                onTabSelected = { tab ->
-                    selectedTab = tab
-                    when (tab) {
-                        0 -> navController.navigate(AppDestinations.HOMEPAGE)
-                        1 -> navController.navigate(AppDestinations.GROUPS)
-                        2 -> navController.navigate(AppDestinations.TRANSFER)
-                        3 -> navController.navigate(AppDestinations.PROFILE)
-                    }
-                }
-            )
-        },
+//        bottomBar = {
+//            TransferBottomNavigationBar(
+//                selectedTab = selectedTab,
+//                onTabSelected = { tab ->
+//                    selectedTab = tab
+//                    when (tab) {
+//                        0 -> navController.navigate(AppDestinations.HOMEPAGE)
+//                        1 -> navController.navigate(AppDestinations.GROUPS)
+//                        2 -> navController.navigate(AppDestinations.TRANSFER)
+//                        3 -> navController.navigate(AppDestinations.PROFILE)
+//                    }
+//                }
+//            )
+//        },
         containerColor = Color(0xFFF8F9FA)
     ) { paddingValues ->
         Column(

@@ -22,6 +22,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import com.joincoded.bankapi.AppNavigator.AppDestinations
 import com.joincoded.bankapi.viewmodel.BankViewModel
 
 
@@ -29,11 +31,12 @@ import com.joincoded.bankapi.viewmodel.BankViewModel
 @Composable
 fun CardsScreen(
     viewModel: BankViewModel = viewModel(),
+    navController: NavController,
     // navigation to card details when view details is clicked
     onNavigateToCardDetails: () -> Unit = {}
 ) {
 
-    var selectedTab by remember { mutableStateOf(1) } // cards tab selected
+    var selectedTab by remember { mutableStateOf(2) } // cards tab selected
 
     LaunchedEffect(Unit) {
         viewModel.loadUserAccount()  // Fetch account info from backend
@@ -44,37 +47,32 @@ fun CardsScreen(
             .background(Color(0xFFF8F9FA))
             .fillMaxSize(), // Ensure Scaffold takes full size
         topBar = {
-            CenterAlignedTopAppBar(
-                modifier = Modifier,
+            TopAppBar(
                 title = {
                     Text(
                         text = "Cards",
-                        fontSize = 18.sp,
+                        fontSize = 20.sp,
                         fontWeight = FontWeight.Medium,
                         color = Color(0xFF2C3E50)
                     )
-
                 },
-                navigationIcon = {
-                    IconButton(onClick = { /* Handle back navigation */ }) {
-                        Icon(
-                            imageVector = Icons.Default.ArrowBack,
-                            contentDescription = "Back",
-                            tint = Color(0xFF2C3E50)
-                        )
-                    }
-                },
-                actions = {
-                    IconButton(onClick = { }, enabled = false) {
-                    }
-                },
-
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = Color.White
                 )
+            )
         },
         bottomBar = {
             CardsBottomNavigationBar(
                 selectedTab = selectedTab,
-                onTabSelected = { selectedTab = it }
+                onTabSelected = { tab ->
+                    selectedTab = tab
+                    when (tab) {
+                        0 -> navController.navigate(AppDestinations.HOMEPAGE)
+                        1 -> navController.navigate(AppDestinations.GROUPS)
+                        2 -> navController.navigate(AppDestinations.CARDS)
+                        3 -> navController.navigate(AppDestinations.PROFILE)
+                    }
+                }
             )
         },
         containerColor = Color(0xFFF8F9FA)
@@ -114,7 +112,7 @@ fun CardsScreen(
                     sectionTitle = "GROUP CARD",
                     sectionSubtitle = "ADMIN",
                     cardTitle = "Yalla Group Card",
-                    cardNumber = "**** 8934 7654 1234",
+                    cardNumber = "**** **** **** 1234",
                     cardHolder = "Team Yalla",
                     expiryDate = "12/25",
                     cardColor = Color(0xFF34495E),
@@ -307,13 +305,10 @@ fun CardsBottomNavigationBar(
     selectedTab: Int,
     onTabSelected: (Int) -> Unit
 ) {
-    // ORIGINAL: Navigation bar container with styling
     NavigationBar(
-        containerColor = Color.White,    // ORIGINAL: White background
-        tonalElevation = 8.dp           // ORIGINAL: Subtle shadow elevation
+        containerColor = Color.White,
+        tonalElevation = 8.dp
     ) {
-
-        // ORIGINAL: Home tab (index 0)
         NavigationBarItem(
             icon = {
                 Icon(
@@ -335,11 +330,11 @@ fun CardsBottomNavigationBar(
         NavigationBarItem(
             icon = {
                 Icon(
-                    imageVector = if (selectedTab == 1) Icons.Filled.CreditCard else Icons.Outlined.CreditCard,
-                    contentDescription = "Cards"
+                    imageVector = if (selectedTab == 1) Icons.Filled.Group else Icons.Outlined.Group,
+                    contentDescription = "Groups"
                 )
             },
-            label = { Text("Cards") },
+            label = { Text("Groups") },
             selected = selectedTab == 1,
             onClick = { onTabSelected(1) },
             colors = NavigationBarItemDefaults.colors(
@@ -353,11 +348,11 @@ fun CardsBottomNavigationBar(
         NavigationBarItem(
             icon = {
                 Icon(
-                    imageVector = if (selectedTab == 2) Icons.Filled.Group else Icons.Outlined.Group,
-                    contentDescription = "Groups"
+                    imageVector = if (selectedTab == 2) Icons.Filled.CreditCard else Icons.Outlined.CreditCard,
+                    contentDescription = "Cards"
                 )
             },
-            label = { Text("Groups") },
+            label = { Text("Cards") },
             selected = selectedTab == 2,
             onClick = { onTabSelected(2) },
             colors = NavigationBarItemDefaults.colors(
@@ -368,7 +363,6 @@ fun CardsBottomNavigationBar(
             )
         )
 
-        // ORIGINAL: Profile tab (index 3)
         NavigationBarItem(
             icon = {
                 Icon(
@@ -388,11 +382,11 @@ fun CardsBottomNavigationBar(
         )
     }
 }
-
-@Preview(showBackground = true)
-@Composable
-fun CardsScreenPreview() {
-    MaterialTheme {
-        CardsScreen()  // ORIGINAL: Shows CardsScreen with default parameters
-    }
-}
+//
+//@Preview(showBackground = true)
+//@Composable
+//fun CardsScreenPreview() {
+//    MaterialTheme {
+//        CardsScreen()  // ORIGINAL: Shows CardsScreen with default parameters
+//    }
+//}

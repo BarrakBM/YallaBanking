@@ -77,6 +77,7 @@ fun BankNavHost(
         composable(AppDestinations.CARDS) {
             CardsScreen(
                 viewModel = bankViewModel,
+                navController = navController,
                 onNavigateToCardDetails = {
                     navController.navigate(AppDestinations.CARDDETAILS)
                 }

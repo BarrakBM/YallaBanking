@@ -17,12 +17,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
-
-
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.joincoded.bankapi.viewmodel.BankViewModel
-
 import androidx.navigation.NavController
 import com.joincoded.bankapi.AppNavigator.AppDestinations
 import com.joincoded.bankapi.dto.GroupDetailsDTO
@@ -50,6 +47,9 @@ fun FundGroupScreen(viewModel: BankViewModel, navController: NavController,group
             navController.popBackStack() // Or navigate to a success screen
         }
     }
+
+
+
 
     Scaffold(
         topBar = {
@@ -129,6 +129,8 @@ fun FundGroupScreen(viewModel: BankViewModel, navController: NavController,group
                             description = if (description.isNotBlank()) description else "Group funding"
                         )
                     }
+                    navController.navigate(AppDestinations.GROUPDETAIL)
+
                 },
                 modifier = Modifier
                     .fillMaxWidth()

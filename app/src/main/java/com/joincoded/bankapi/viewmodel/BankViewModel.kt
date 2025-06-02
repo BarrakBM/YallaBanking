@@ -3,16 +3,23 @@ package com.joincoded.bankapi.viewmodel
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.joincoded.bankapi.api.AccountApi
 import com.joincoded.bankapi.api.AuthApi
 import com.joincoded.bankapi.api.GroupApi
 import com.joincoded.bankapi.dto.AuthenticationRequest
+import com.joincoded.bankapi.dto.CreateGroupRequest
 import com.joincoded.bankapi.dto.GroupDetailsDTO
+import com.joincoded.bankapi.dto.GroupDto
+import com.joincoded.bankapi.dto.GroupResponseDTO
 import com.joincoded.bankapi.dto.InformationDTO
 import com.joincoded.bankapi.dto.RegistrationRequestDTO
 import com.joincoded.bankapi.dto.allTransactionDTO
+import com.joincoded.bankapi.dto.allUsers
+import com.joincoded.bankapi.dto.userDTO
 import com.joincoded.bankapi.network.RetrofitHelper
 
 
@@ -40,6 +47,7 @@ class BankViewModel : ViewModel() {
     // retrieved by validating the token with the auth service
     var currentUserId: Long? by mutableStateOf(null)
 
+    var groupCreated: GroupDto? by mutableStateOf(null)
     // to indicate if user is currently logged in
     var isLoggedIn: Boolean by mutableStateOf(false)
     var needSignUp: Boolean by mutableStateOf(false)
@@ -50,6 +58,11 @@ class BankViewModel : ViewModel() {
 
     // this to list all user's transaction history
     var transactionHistory: List<allTransactionDTO> by mutableStateOf(emptyList())
+
+    var userList: List<userDTO> by mutableStateOf(emptyList())
+//    var  allUsers: allUsers by mutableStateOf(emptyList())
+//    private val _allUsers = MutableLiveData<List<userDTO>>()
+//    val allUsers: LiveData<List<userDTO>> get() = _allUsers
 
 
     // list of groups where user is a member, and user to display group card
@@ -234,6 +247,73 @@ class BankViewModel : ViewModel() {
                 }
             }
         }
+    }
+
+    fun createGroup(groupDto: CreateGroupRequest){
+        authToken?.let { token ->
+            viewModelScope.launch {
+
+                isLoading = true
+                errorMessage = null
+                try {
+
+                    val response = groupApiService.createGroupWithMembers("Bearer $token", groupDto )
+
+                    if (response.isSuccessful) {
+                        groupCreated = response.body()
+
+
+                    } else if (response.code() == 404) {
+                        // User doesn't have an account yet (new user)
+
+                        errorMessage = "No account found. Please create an account."
+
+                    } else {
+                        // server error, permission denied, etc...
+                        errorMessage = "Failed to load account information"
+                    }
+
+
+                }catch (e: Exception) {
+                    // network error
+                    errorMessage = "Network error: ${e.message}"
+                } finally {
+                    isLoading = false
+                }
+            }
+        }
+
+    }
+
+    fun allUser(){
+        authToken?.let { token ->
+            viewModelScope.launch {
+
+                isLoading = true
+                errorMessage = null
+                try {
+                    val response = accountApiService.getAllUsers("Bearer $token")
+                    if (response.isSuccessful) {
+                        userList = response.body() ?: emptyList()
+
+
+                    } else if (response.code() == 404) {
+                        // User doesn't have an account yet (new user)
+
+                        errorMessage = "No account found. Please create an account."
+
+                    } else {
+                        // server error, permission denied, etc...
+                        errorMessage = "Failed to load account information"
+                    }
+                }catch (e: Exception) {
+                    // network error
+                    errorMessage = "Network error: ${e.message}"
+                } finally {
+                    isLoading = false
+                }
+                }
+            }
     }
 
 }

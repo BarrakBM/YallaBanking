@@ -14,6 +14,13 @@ interface GroupApi {
         @Body groupDto: GroupDto
     ): Response<GroupResponseDTO>
 
+    @POST("groups/v1/createWithMembers")
+    suspend fun createGroupWithMembers(
+        @Header("Authorization") token: String,
+        @Body groupDto: CreateGroupRequest
+    ): Response<GroupDto>
+
+
     @POST("groups/v1/addMember")
     suspend fun addMemberToGroup(
         @Header("Authorization") token: String,

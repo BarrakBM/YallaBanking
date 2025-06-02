@@ -42,6 +42,14 @@ data class fundGroupDTO(
     val description: String
 )
 
+data class userDTO(
+    val userId: Long,
+    val name: String
+)
+
+data class allUsers(
+    val userList: List<userDTO>
+)
 
 data class DeAtivateDTO(
     val userId: Long,

@@ -28,10 +28,10 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             BankAPITheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-BankNavHost(modifier = Modifier.padding(innerPadding))
+
+                    BankNavHost(modifier = Modifier)
                 // Greeting(name = "name", modifier = Modifier.padding(innerPadding))
-                }
+
             }
         }
     }

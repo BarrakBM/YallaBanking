@@ -9,6 +9,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.joincoded.bankapi.composables.CardsScreen
+import com.joincoded.bankapi.composables.CreateGroupScreen
 import com.joincoded.bankapi.composables.YallaBankingLoginScreen
 import com.joincoded.bankapi.viewmodel.BankViewModel
 
@@ -59,12 +60,12 @@ fun BankNavHost(
         }
 
 
-        composable (AppDestinations.HOMEPAGE){
-
-            CardsScreen(bankViewModel,{
-                navController.navigate(AppDestinations.CARDDETAILS)
-            })
-        }
+//        composable (AppDestinations.HOMEPAGE){
+//
+//            CardsScreen(bankViewModel,{
+//                navController.navigate(AppDestinations.CARDDETAILS)
+//            })
+//        }
         composable (AppDestinations.CARDS){
             Text(text = "Card Detail")
         }
@@ -81,7 +82,9 @@ fun BankNavHost(
         composable (AppDestinations.GROUPS){
 
         }
-        composable (AppDestinations.CREATEGROUP){
+        composable (AppDestinations.HOMEPAGE){   //////////////////////////////////////////////////////
+
+            CreateGroupScreen(bankViewModel)
 
         }
         composable (AppDestinations.GROUPDETAIL){

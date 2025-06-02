@@ -389,6 +389,7 @@ class BankViewModel : ViewModel() {
                     val response = groupApiService.createGroupWithMembers("Bearer $token", groupDto )
 
                     if (response.isSuccessful) {
+                        successMessage = "T"
                         groupCreated = response.body()
 
 
@@ -423,6 +424,7 @@ class BankViewModel : ViewModel() {
                 try {
                     val response = accountApiService.getAllUsers("Bearer $token")
                     if (response.isSuccessful) {
+
                         userList = response.body() ?: emptyList()
 
 

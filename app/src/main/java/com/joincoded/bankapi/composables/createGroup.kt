@@ -23,6 +23,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import com.joincoded.bankapi.AppNavigator.AppDestinations
 import com.joincoded.bankapi.dto.CreateGroupRequest
 import com.joincoded.bankapi.dto.userDTO
 import com.joincoded.bankapi.viewmodel.BankViewModel
@@ -38,18 +40,29 @@ import com.joincoded.bankapi.viewmodel.BankViewModel
 @Composable
 fun CreateGroupScreen(
     bankViewModel: BankViewModel,
-//    navController: NavController
+    navController: NavController
 ) {
     var selectedTab by remember { mutableStateOf(2) } // Groups tab selected
     var groupName by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
     var searchQuery by remember { mutableStateOf("") }
+    var showConfirmDialog by remember { mutableStateOf(false) }
 
     val selectedMembers = remember { mutableStateListOf<userDTO>() }
 
     val allContacts = remember { mutableStateListOf<userDTO>() }
     val context = LocalContext.current
 
+    LaunchedEffect(Unit) {
+        bankViewModel.allUser()
+
+    }
+
+    if (showConfirmDialog){
+        GroupCreatedDialog(onDismiss = {false},
+            onConfirm = {navController.navigate(AppDestinations.GROUPDETAIL)})
+    }
+    
     Scaffold(
         topBar = {
             TopAppBar(
@@ -117,7 +130,7 @@ fun CreateGroupScreen(
 
             // Search Contacts Section
             item {
-                val userFromViewModel = bankViewModel.allUser()
+                val userFromViewModel = bankViewModel.userList
                 SearchContactsSection(
                     searchQuery = searchQuery,
                     onSearchChange = { searchQuery = it },
@@ -150,7 +163,15 @@ fun CreateGroupScreen(
                         name = groupName,
                         description = description,
                         memberIds = selectedMembers.map { it.userId.toString() }
-                    )) },
+                    ))
+
+                        println("msg^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^${bankViewModel.successMessage}")
+                        if (bankViewModel.successMessage?.contains("T") == true){
+                            showConfirmDialog = true
+                        }
+
+                        println("Showwwwwwwwwwwwwwwww $showConfirmDialog")
+                              },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(50.dp),
@@ -175,6 +196,16 @@ fun CreateGroupScreen(
                 }
             }
         }
+
+        println("created Group ******RR")
+
+
+
+            println("created Group")
+
+
+
+
     }
 }
 
@@ -474,6 +505,56 @@ fun DescriptionSection(
             maxLines = 4
         )
     }
+}
+
+@Composable
+fun GroupCreatedDialog(
+    onDismiss: () -> Unit,
+    onConfirm: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Text(
+                text = "Success!",
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Medium,
+                color = Color(0xFF2C3E50),
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
+            )
+        },
+        text = {
+            Text(
+                text = "The group was created successfully.",
+                fontSize = 16.sp,
+                color = Color.Gray,
+                textAlign = TextAlign.Center
+            )
+        },
+        confirmButton = {
+            Button(
+                onClick = onConfirm,
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2C3E50)),
+                shape = RoundedCornerShape(8.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(48.dp)
+            ) {
+                Text(
+                    text = "OK",
+                    color = Color.White,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Medium
+                )
+            }
+        },
+        modifier = Modifier
+            .widthIn(max = 320.dp)
+            .clip(RoundedCornerShape(12.dp)),
+        containerColor = Color.White,
+        tonalElevation = 8.dp
+    )
 }
 
 @Composable

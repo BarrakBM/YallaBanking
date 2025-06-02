@@ -30,7 +30,7 @@ interface AccountApi {
     ): Response<InformationDTO>
 
     @GET("/account/v1/allUsers")
-    fun getAllUsers(
+    suspend fun getAllUsers(
         @Header("Authorization") token: String
     ): Response<List<userDTO>>
 

@@ -13,31 +13,33 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.joincoded.bankapi.AppNavigator.AppDestinations
 import com.joincoded.bankapi.viewmodel.BankViewModel
 
 @Composable
 fun YallaBankingLoginScreen(
-
     bankViewModel: BankViewModel,
     navController: NavController
 ) {
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
-    if(bankViewModel.isLoggedIn && bankViewModel.needSignUp) {          // is Needregistor
-        navController.navigate(AppDestinations.SIGNUP)
+    // Handle navigation based on login state
+    LaunchedEffect(bankViewModel.isLoggedIn, bankViewModel.needSignUp) {
+        if (bankViewModel.isLoggedIn && bankViewModel.needSignUp) {
+            navController.navigate(AppDestinations.CREATEPROFILE) {
+                popUpTo(AppDestinations.lOGIN) { inclusive = true }
+            }
+        } else if (bankViewModel.isLoggedIn && !bankViewModel.needSignUp) {
+            navController.navigate(AppDestinations.HOMEPAGE) {
+                popUpTo(AppDestinations.lOGIN) { inclusive = true }
+            }
+        }
     }
-    else if (bankViewModel.isLoggedIn && !bankViewModel.needSignUp) {
 
-        navController.navigate(AppDestinations.HOMEPAGE)
-    }
-    // new function or navigator for signUP
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -151,26 +153,65 @@ fun YallaBankingLoginScreen(
 
         Spacer(modifier = Modifier.height(32.dp))
 
+        // Error/Success Messages
+        bankViewModel.errorMessage?.let { error ->
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(containerColor = Color(0xFFFFEBEE))
+            ) {
+                Text(
+                    text = error,
+                    color = Color(0xFFD32F2F),
+                    modifier = Modifier.padding(16.dp),
+                    textAlign = TextAlign.Center
+                )
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+        }
+
+        bankViewModel.successMessage?.let { success ->
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(containerColor = Color(0xFFE8F5E8))
+            ) {
+                Text(
+                    text = success,
+                    color = Color(0xFF2E7D32),
+                    modifier = Modifier.padding(16.dp),
+                    textAlign = TextAlign.Center
+                )
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+        }
+
         // Sign In Button
         Button(
             onClick = {
-                bankViewModel.login(username,password)
-
+                bankViewModel.clearMessages() // Clear previous messages
+                bankViewModel.login(username, password)
             },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(50.dp),
+            enabled = username.isNotBlank() && password.isNotBlank() && !bankViewModel.isLoading,
             colors = ButtonDefaults.buttonColors(
                 containerColor = Color(0xFF2C3E50)
             ),
             shape = RoundedCornerShape(8.dp)
         ) {
-            Text(
-                text = "Sign In",
-                color = Color.White,
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Medium
-            )
+            if (bankViewModel.isLoading) {
+                CircularProgressIndicator(
+                    color = Color.White,
+                    modifier = Modifier.size(20.dp)
+                )
+            } else {
+                Text(
+                    text = "Sign In",
+                    color = Color.White,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Medium
+                )
+            }
         }
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -191,7 +232,10 @@ fun YallaBankingLoginScreen(
             }
 
             TextButton(
-                onClick = { navController.navigate(AppDestinations.SIGNUP) }    //
+                onClick = {
+                    bankViewModel.clearMessages() // Clear messages when navigating
+                    navController.navigate(AppDestinations.SIGNUP)
+                }
             ) {
                 Text(
                     text = "Sign up",
@@ -205,19 +249,11 @@ fun YallaBankingLoginScreen(
 
         // Copyright
         Text(
-            text = "Â© 2025 yalla banking",
+            text = "© 2025 yalla banking",
             fontSize = 12.sp,
             color = Color(0xFFAAAAAA),
             textAlign = TextAlign.Center,
             modifier = Modifier.padding(bottom = 16.dp)
         )
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun YallaBankingLoginScreenPreview() {
-    MaterialTheme {
-//        YallaBankingLoginScreen()
     }
 }

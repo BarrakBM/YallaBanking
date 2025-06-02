@@ -8,9 +8,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.joincoded.bankapi.composables.CardsScreen
-import com.joincoded.bankapi.composables.CreateGroupScreen
-import com.joincoded.bankapi.composables.YallaBankingLoginScreen
+import com.joincoded.bankapi.composables.*
 import com.joincoded.bankapi.viewmodel.BankViewModel
 
 object AppDestinations {
@@ -18,9 +16,9 @@ object AppDestinations {
     const val CREATEPROFILE = "createProfile"
     const val SIGNUP ="signUp"
     const val HOMEPAGE = "homePage"
-    const val CARDS = "composable/cards"
+    const val CARDS = "cards"
     const val CARDDETAILS ="cardDetails"
-    const val TRANSFER ="tranfer"
+    const val TRANSFER ="transfer"
     const val GROUPS ="groups"
     const val CREATEGROUP ="createGroup"
     const val GROUPDETAIL = "groupDetail/{id}"
@@ -28,78 +26,116 @@ object AppDestinations {
     const val FUNDGROUP = "fundGroup"
     const val PROFILE = "profile"
 
-    fun groupDetail(id: Int) = "group_detail/$id"
+    fun groupDetail(id: Int) = "groupDetail/$id"
 }
 
 @Composable
 fun BankNavHost(
     modifier: Modifier,
-    navController:
-    NavHostController = rememberNavController()){
-
+    navController: NavHostController = rememberNavController()
+) {
     val bankViewModel: BankViewModel = viewModel()
+
     NavHost(
         modifier = modifier,
         navController = navController,
         startDestination = AppDestinations.lOGIN
-    ){
-        composable(AppDestinations.lOGIN){
+    ) {
+        // Login Screen
+        composable(AppDestinations.lOGIN) {
             YallaBankingLoginScreen(
-
-                bankViewModel,
-                navController
+                bankViewModel = bankViewModel,
+                navController = navController
             )
-
-
         }
 
-        composable (AppDestinations.SIGNUP){
-
-
-            Text(text = "Sign Up")
+        // Sign Up Screen
+        composable(AppDestinations.SIGNUP) {
+            SignUpScreen(
+                viewModel = bankViewModel,
+                navController = navController
+            )
         }
 
-
-//        composable (AppDestinations.HOMEPAGE){
-//
-//            CardsScreen(bankViewModel,{
-//                navController.navigate(AppDestinations.CARDDETAILS)
-//            })
-//        }
-        composable (AppDestinations.CARDS){
-            Text(text = "Card Detail")
+        // Create Profile Screen (for new users after login)
+        composable(AppDestinations.CREATEPROFILE) {
+            CreateProfileScreen(
+                viewModel = bankViewModel,
+                navController = navController
+            )
         }
 
-        composable (AppDestinations.CARDDETAILS){
-
-
+        // Home Screen
+        composable(AppDestinations.HOMEPAGE) {
+            HomeScreen(
+                viewModel = bankViewModel,
+                navController = navController
+            )
         }
 
-        composable (AppDestinations.TRANSFER){
-
-
-        }
-        composable (AppDestinations.GROUPS){
-
-        }
-        composable (AppDestinations.HOMEPAGE){   //////////////////////////////////////////////////////
-
-            CreateGroupScreen(bankViewModel)
-
-        }
-        composable (AppDestinations.GROUPDETAIL){
-
-        }
-        composable (AppDestinations.ADDMEMBER){
-
-        }
-        composable (AppDestinations.FUNDGROUP){
-
-        }
-        composable (AppDestinations.PROFILE){
-
+        // Cards Screen
+        composable(AppDestinations.CARDS) {
+            CardsScreen(
+                viewModel = bankViewModel,
+                navController = navController,
+                onNavigateToCardDetails = {
+                    navController.navigate(AppDestinations.CARDDETAILS)
+                }
+            )
         }
 
+        // Card Details Screen
+        composable(AppDestinations.CARDDETAILS) {
+            CardDetailsScreen(
+                viewModel = bankViewModel,
+                navController = navController
+            )
+        }
 
+        // Transfer Screen
+        composable(AppDestinations.TRANSFER) {
+            TransferScreen(
+                viewModel = bankViewModel,
+                navController = navController,
+            )
+        }
+
+        // Groups Screen
+        composable(AppDestinations.GROUPS) {
+            GroupsScreen(
+                viewModel = bankViewModel,
+                navController = navController,
+            )
+        }
+
+        // Create Group Screen
+        composable(AppDestinations.CREATEGROUP) {
+            Text(text = "change me")
+        }
+
+        // Group Details Screen
+        composable(AppDestinations.GROUPDETAIL) {
+            // Extract group ID from navigation arguments
+            val groupId = it.arguments?.getString("id")?.toIntOrNull() ?: 0
+            Text(text = "change me")
+        }
+
+        // Add Member Screen
+        composable(AppDestinations.ADDMEMBER) {
+            Text(text = "change me")
+        }
+
+        // Fund Group Screen
+        composable(AppDestinations.FUNDGROUP) {
+            Text(text = "change me")
+        }
+
+        // Profile Screen
+        composable(AppDestinations.PROFILE) {
+            ProfileScreen(
+                viewModel = bankViewModel,
+                navController = navController
+            )
+        }
     }
 }

@@ -59,7 +59,10 @@ fun BankNavHost(
 
         // Create Profile Screen (for new users after login)
         composable(AppDestinations.CREATEPROFILE) {
-           Text(text = "change me")
+            CreateProfileScreen(
+                viewModel = bankViewModel,
+                navController = navController
+            )
         }
 
         // Home Screen
@@ -83,7 +86,10 @@ fun BankNavHost(
 
         // Card Details Screen
         composable(AppDestinations.CARDDETAILS) {
-            Text(text = "change me")
+            CardDetailsScreen(
+                viewModel = bankViewModel,
+                navController = navController
+            )
         }
 
         // Transfer Screen

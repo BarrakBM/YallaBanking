@@ -20,6 +20,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.ViewModel
 import androidx.navigation.NavController
 import com.joincoded.bankapi.AppNavigator.AppDestinations
 import com.joincoded.bankapi.dto.allTransactionDTO
@@ -28,6 +29,7 @@ import com.joincoded.bankapi.viewmodel.BankViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
+
     viewModel: BankViewModel,
     navController: NavController
 ) {
@@ -56,7 +58,7 @@ fun HomeScreen(
                     when (tab) {
                         0 -> navController.navigate(AppDestinations.HOMEPAGE)
                         1 -> navController.navigate(AppDestinations.GROUPS)
-                        2 -> navController.navigate(AppDestinations.TRANSFER)
+                        2 -> navController.navigate(AppDestinations.CARDS)
                         3 -> navController.navigate(AppDestinations.PROFILE)
                     }
                 }
@@ -125,10 +127,13 @@ fun HomeScreen(
 
             // Cards Section
             item {
-                CardsSection(
-                    userAccount = viewModel.userAccount,
-                    onSeeAllClick = { navController.navigate(AppDestinations.CARDS) }
-                )
+                viewModel.currentUserId?.let {
+                    CardsSection(
+                        userAccount = viewModel.userAccount,
+                        onSeeAllClick = { navController.navigate(AppDestinations.CARDS) },
+                        userId= it
+                    )
+                }
             }
 
             // Recent Transactions
@@ -218,6 +223,7 @@ fun QuickActionsSection(
 
 @Composable
 fun CardsSection(
+    userId:Long,
     userAccount: com.joincoded.bankapi.dto.InformationDTO?,
     onSeeAllClick: () -> Unit
 ) {
@@ -247,8 +253,8 @@ fun CardsSection(
         // Main Card
         BankCard(
             cardType = userAccount?.name ?: "Your Card",
-            cardNumber = "•••• ${userAccount?.name?.takeLast(4) ?: "0000"}",
-            validThru = "05/2025",
+            cardNumber = "**** **** **** ${userId.toString().padStart(4, '0') ?: "0000"}",
+            validThru = "08/29",
             cardBrand = "VISA",
             backgroundColor = if (userAccount?.isActive == true) Color(0xFF2C3E50) else Color(0xFF999999)
         )
@@ -496,11 +502,11 @@ fun BottomNavigationBar(
         NavigationBarItem(
             icon = {
                 Icon(
-                    imageVector = if (selectedTab == 2) Icons.Filled.Send else Icons.Outlined.Send,
-                    contentDescription = "Transfer"
+                    imageVector = if (selectedTab == 2) Icons.Filled.CreditCard else Icons.Outlined.CreditCard,
+                    contentDescription = "Cards"
                 )
             },
-            label = { Text("Transfer") },
+            label = { Text("Cards") },
             selected = selectedTab == 2,
             onClick = { onTabSelected(2) },
             colors = NavigationBarItemDefaults.colors(

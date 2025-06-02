@@ -53,7 +53,7 @@ data class userTransactionDTO(
     val from: String,
     val to: String,
     val amount: BigDecimal,
-    val time: LocalDate
+    val time: String // Changed from LocalDate to String
 )
 // save
 data class allTransactionHistoryRespone(
@@ -62,10 +62,28 @@ data class allTransactionHistoryRespone(
 
 
 
+// Option 1: Keep as String (if backend sends date as string)
 data class allTransactionDTO(
     val from: String,
     val to: String,
     val amount: BigDecimal,
     val type: String,
-    val time: LocalDate
+    val time: String
 )
+
+// Option 2: Use a date object if backend sends LocalDate as object
+/*
+data class LocalDateDTO(
+    val year: Int,
+    val month: Int,
+    val day: Int
+)
+
+data class allTransactionDTO(
+    val from: String,
+    val to: String,
+    val amount: BigDecimal,
+    val type: String,
+    val time: LocalDateDTO
+)
+*/

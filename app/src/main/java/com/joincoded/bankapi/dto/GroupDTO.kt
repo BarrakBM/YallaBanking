@@ -8,6 +8,13 @@ data class GroupDto(
     val initialBalance: BigDecimal
 )
 
+data class CreateGroupRequest(
+    val name: String,
+    val description: String? = null,
+    val memberIds: List<String>
+)
+
+
 data class GroupResponseDTO(
     val groupId: Long,
     val name: String,

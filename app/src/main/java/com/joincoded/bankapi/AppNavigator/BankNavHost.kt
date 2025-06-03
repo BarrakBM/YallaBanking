@@ -110,7 +110,9 @@ fun BankNavHost(
 
         // Create Group Screen
         composable(AppDestinations.CREATEGROUP) {
-            Text(text = "change me")
+            CreateGroupScreen(
+                bankViewModel = bankViewModel,
+                navController= navController)
         }
 
         // Group Details Screen

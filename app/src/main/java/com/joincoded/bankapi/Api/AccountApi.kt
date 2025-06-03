@@ -8,6 +8,8 @@ import com.joincoded.bankapi.dto.allTransactionHistoryRespone
 import com.joincoded.bankapi.dto.TransferResponseDTO
 import com.joincoded.bankapi.dto.userfundResponse
 import com.joincoded.bankapi.dto.DeAtivateDTO
+import com.joincoded.bankapi.dto.allUsers
+import com.joincoded.bankapi.dto.userDTO
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -26,6 +28,12 @@ interface AccountApi {
     suspend fun viewInformation(
         @Header("Authorization") token: String
     ): Response<InformationDTO>
+
+    @GET("/account/v1/allUsers")
+    suspend fun getAllUsers(
+        @Header("Authorization") token: String
+    ): Response<List<userDTO>>
+
 
     @POST("account/v1/deactive")
     suspend fun deactiveAccount(

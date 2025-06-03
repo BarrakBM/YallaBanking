@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.joincoded.bankapi.AppNavigator.AppDestinations
 import com.joincoded.bankapi.dto.GroupDetailsDTO
 import com.joincoded.bankapi.dto.MemberDTO
 import com.joincoded.bankapi.viewmodel.BankViewModel
@@ -39,13 +40,11 @@ fun GroupDetailsScreen(
     var errorMessage by remember { mutableStateOf<String?>(null) }
     val coroutineScope = rememberCoroutineScope()
 
-    // Load group details when screen opens
     LaunchedEffect(groupId) {
         coroutineScope.launch {
             try {
                 isLoading = true
                 errorMessage = null
-                // You'll need to implement this in your viewModel
                 groupDetails = viewModel.getGroupDetails(groupId)
             } catch (e: Exception) {
                 errorMessage = e.message
@@ -81,13 +80,11 @@ fun GroupDetailsScreen(
                     }
                 },
                 actions = {
-                    // Show admin actions if user is admin
                     groupDetails?.let { group ->
                         val isAdmin = group.members.find { it.userId == viewModel.currentUserId }?.isAdmin == true
                         if (isAdmin) {
                             IconButton(
                                 onClick = {
-                                    // Navigate to add member screen or show options
                                     navController.navigate("addMember")
                                 }
                             ) {
@@ -163,31 +160,34 @@ fun GroupDetailsScreen(
                     contentPadding = PaddingValues(16.dp),
                     verticalArrangement = Arrangement.spacedBy(24.dp)
                 ) {
-                    // Group Balance Card
                     item {
                         GroupBalanceCard(
                             groupDetails = groupDetails!!,
                             currentUserId = viewModel.currentUserId,
                             onFundGroup = {
-                                navController.navigate("fundGroup")
+                                viewModel.clearMessages()
+                                viewModel.selectedGroup = groupDetails
+                                navController.navigate(AppDestinations.FUNDGROUP)
                             },
                             modifier = Modifier.fillMaxWidth()
                         )
                     }
 
-                    // Quick Actions
                     item {
                         GroupQuickActions(
                             groupDetails = groupDetails!!,
                             currentUserId = viewModel.currentUserId,
-                            onFundGroup = { navController.navigate("fundGroup") },
+                            onFundGroup = {
+                                viewModel.clearMessages()
+                                viewModel.selectedGroup = groupDetails
+                                navController.navigate(AppDestinations.FUNDGROUP)
+                            },
                             onAddMember = { navController.navigate("addMember") },
                             onPayment = { /* Handle payment */ },
                             modifier = Modifier.fillMaxWidth()
                         )
                     }
 
-                    // Members Section
                     item {
                         Text(
                             text = "Members (${groupDetails!!.members.size})",
@@ -197,7 +197,6 @@ fun GroupDetailsScreen(
                         )
                     }
 
-                    // Members List
                     items(groupDetails!!.members) { member ->
                         MemberItem(
                             member = member,
@@ -208,7 +207,6 @@ fun GroupDetailsScreen(
                         )
                     }
 
-                    // Group Statistics
                     item {
                         GroupStatisticsCard(
                             groupDetails = groupDetails!!,
@@ -242,7 +240,6 @@ fun GroupBalanceCard(
                 .fillMaxSize()
                 .padding(20.dp)
         ) {
-            // Group name
             Text(
                 text = groupDetails.groupName,
                 color = Color.White,
@@ -251,7 +248,6 @@ fun GroupBalanceCard(
                 modifier = Modifier.align(Alignment.TopStart)
             )
 
-            // Admin badge
             if (isAdmin) {
                 Box(
                     modifier = Modifier
@@ -271,7 +267,6 @@ fun GroupBalanceCard(
                 }
             }
 
-            // Balance
             Column(
                 modifier = Modifier.align(Alignment.CenterStart)
             ) {
@@ -298,9 +293,6 @@ fun GroupBalanceCard(
                     )
                 }
             }
-
-            // Group ID
-
         }
     }
 }
@@ -370,7 +362,6 @@ fun MemberItem(
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // member Avatar
             Box(
                 modifier = Modifier
                     .size(48.dp)
@@ -390,7 +381,6 @@ fun MemberItem(
 
             Spacer(modifier = Modifier.width(16.dp))
 
-            // Member Info
             Column(
                 modifier = Modifier.weight(1f)
             ) {
@@ -421,7 +411,6 @@ fun MemberItem(
                 )
             }
 
-            // actions for admin
             if (isCurrentUserAdmin && !member.isAdmin && !isCurrentUser) {
                 IconButton(
                     onClick = { onRemoveMember(member.userId) }

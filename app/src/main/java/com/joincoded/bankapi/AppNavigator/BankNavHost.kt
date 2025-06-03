@@ -133,8 +133,14 @@ fun BankNavHost(
 
         // Fund Group Screen
         composable(AppDestinations.FUNDGROUP) {
-            Text(text = "Fund Group Screen - To be implemented")
+            val group = bankViewModel.selectedGroup
+            FundGroupScreen(
+                viewModel = bankViewModel,
+                navController = navController,
+                group = group!!
+            )
         }
+
 
         // Profile Screen
         composable(AppDestinations.PROFILE) {

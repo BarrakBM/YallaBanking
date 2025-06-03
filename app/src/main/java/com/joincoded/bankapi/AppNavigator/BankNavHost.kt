@@ -26,7 +26,7 @@ object AppDestinations {
     const val FUNDGROUP = "fundGroup"
     const val PROFILE = "profile"
 
-    fun groupDetail(id: Int) = "groupDetail/$id"
+    fun groupDetail(id: Long) = "groupDetail/$id"
 }
 
 @Composable
@@ -118,18 +118,22 @@ fun BankNavHost(
         // Group Details Screen
         composable(AppDestinations.GROUPDETAIL) {
             // Extract group ID from navigation arguments
-            val groupId = it.arguments?.getString("id")?.toIntOrNull() ?: 0
-            Text(text = "change me")
+            val groupId = it.arguments?.getString("id")?.toLongOrNull() ?: 0L
+            GroupDetailsScreen(
+                groupId = groupId,
+                viewModel = bankViewModel,
+                navController = navController
+            )
         }
 
         // Add Member Screen
         composable(AppDestinations.ADDMEMBER) {
-            Text(text = "change me")
+            Text(text = "Add Member Screen - To be implemented")
         }
 
         // Fund Group Screen
         composable(AppDestinations.FUNDGROUP) {
-            Text(text = "change me")
+            Text(text = "Fund Group Screen - To be implemented")
         }
 
         // Profile Screen

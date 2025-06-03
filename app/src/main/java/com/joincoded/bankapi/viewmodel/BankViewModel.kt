@@ -36,10 +36,6 @@ class BankViewModel : ViewModel() {
     var transactionHistory: List<allTransactionDTO> by mutableStateOf(emptyList())
 
     var userList: List<userDTO> by mutableStateOf(emptyList())
-//    var  allUsers: allUsers by mutableStateOf(emptyList())
-//    private val _allUsers = MutableLiveData<List<userDTO>>()
-//    val allUsers: LiveData<List<userDTO>> get() = _allUsers
-
 
     // list of groups where user is a member, and user to display group card
     var userGroups: List<GroupDetailsDTO> by mutableStateOf(emptyList())
@@ -49,7 +45,6 @@ class BankViewModel : ViewModel() {
 
     // error message to display to user
     var errorMessage: String? by mutableStateOf(null)
-
 
     // success message for example (transfer complete or login successful
     var successMessage: String? by mutableStateOf(null)
@@ -73,7 +68,7 @@ class BankViewModel : ViewModel() {
 
                         checkToken()
 
-                        // Check if user needs to create account profile
+                        // check if user needs to create account profile
                         val account = accountApiService.viewInformation("Bearer $authToken")
                         needSignUp = !account.isSuccessful
 
@@ -130,6 +125,7 @@ class BankViewModel : ViewModel() {
                         needSignUp = false
                         loadUserAccount()
                         loadTransactionHistory()
+                        loadUserGroups()
                         successMessage = "Account created successfully!"
                     } else {
                         errorMessage = "Failed to create account"
@@ -154,8 +150,8 @@ class BankViewModel : ViewModel() {
                     val response = accountApiService.transferMoney("Bearer $token", transferInfo)
 
                     if (response.isSuccessful) {
-                        loadUserAccount() // Refresh balance
-                        loadTransactionHistory() // Refresh transaction history
+                        loadUserAccount()
+                        loadTransactionHistory()
                         successMessage = "Transfer completed successfully!"
                         transferAmount = ""
                         this@BankViewModel.destinationId = ""
@@ -181,7 +177,7 @@ class BankViewModel : ViewModel() {
                     val response = groupApiService.createGroup("Bearer $token", groupDto)
 
                     if (response.isSuccessful) {
-                        loadUserGroups() // Refresh groups list
+                        loadUserGroups()
                         successMessage = "Group created successfully!"
                     } else {
                         errorMessage = "Failed to create group"
@@ -259,7 +255,6 @@ class BankViewModel : ViewModel() {
                     if (response.isSuccessful) {
                         // if token is valid extract user Id
                         currentUserId = response.body()?.userId
-//                        if (response.body().NeedRegistor)
                     } else {
                         // Token is invalid or expired - log user out
                         logout()
@@ -314,18 +309,16 @@ class BankViewModel : ViewModel() {
         }
     }
 
-    private fun loadUserGroups() {
-        // For now, we'll leave this empty since we need a specific endpoint
-        // to get user's groups. You can add this when the backend endpoint is ready
+    fun loadUserGroups() {
         authToken?.let { token ->
             viewModelScope.launch {
                 try {
-                    // TODO: Implement when backend has getUserGroups endpoint
-                    // val response = groupApiService.getUserGroups("Bearer $token")
-                    // if (response.isSuccessful) {
-                    //     userGroups = response.body() ?: emptyList()
-                    // }
-                    userGroups = emptyList() // Placeholder
+                    val response = groupApiService.getUserGroups("Bearer $token")
+                    if (response.isSuccessful) {
+                        userGroups = response.body() ?: emptyList()
+                    } else {
+                        userGroups = emptyList()
+                    }
                 } catch (e: Exception) {
                     // Silent fail for groups loading
                     userGroups = emptyList()
@@ -391,18 +384,16 @@ class BankViewModel : ViewModel() {
                     if (response.isSuccessful) {
                         successMessage = "T"
                         groupCreated = response.body()
-
+                        loadUserGroups() // Refresh groups after creation
 
                     } else if (response.code() == 404) {
                         // User doesn't have an account yet (new user)
-
                         errorMessage = "No account found. Please create an account."
 
                     } else {
                         // server error, permission denied, etc...
-                        errorMessage = "Failed to load account information"
+                        errorMessage = "Failed to create group"
                     }
-
 
                 }catch (e: Exception) {
                     // network error
@@ -427,10 +418,8 @@ class BankViewModel : ViewModel() {
 
                         userList = response.body() ?: emptyList()
 
-
                     } else if (response.code() == 404) {
                         // User doesn't have an account yet (new user)
-
                         errorMessage = "No account found. Please create an account."
 
                     } else {
@@ -443,7 +432,23 @@ class BankViewModel : ViewModel() {
                 } finally {
                     isLoading = false
                 }
-                }
             }
+        }
+    }
+
+    suspend fun getGroupDetails(groupId: Long): GroupDetailsDTO? {
+        return authToken?.let { token ->
+            try {
+                val groupRequest = GroupIdRequestDTO(groupId)
+                val response = groupApiService.getGroupDetails("Bearer $token", groupRequest)
+                if (response.isSuccessful) {
+                    response.body()
+                } else {
+                    throw Exception("Failed to load group details")
+                }
+            } catch (e: Exception) {
+                throw Exception("Network error: ${e.message}")
+            }
+        }
     }
 }

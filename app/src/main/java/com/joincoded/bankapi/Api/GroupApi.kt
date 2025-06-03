@@ -4,6 +4,7 @@ import com.joincoded.bankapi.dto.*
 import retrofit2.http.Body
 import retrofit2.http.Header
 import retrofit2.http.POST
+import retrofit2.http.GET
 import retrofit2.Response
 
 interface GroupApi {
@@ -20,6 +21,10 @@ interface GroupApi {
         @Body groupDto: CreateGroupRequest
     ): Response<GroupDto>
 
+    @GET("groups/v1/userGroups")
+    suspend fun getUserGroups(
+        @Header("Authorization") token: String
+    ): Response<List<GroupDetailsDTO>>
 
     @POST("groups/v1/addMember")
     suspend fun addMemberToGroup(

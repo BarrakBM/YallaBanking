@@ -29,13 +29,6 @@ import com.joincoded.bankapi.dto.CreateGroupRequest
 import com.joincoded.bankapi.dto.userDTO
 import com.joincoded.bankapi.viewmodel.BankViewModel
 
-//data class Contact(
-//    val id: String,
-//    val name: String,
-//    val email: String,
-//    val isSelected: Boolean = false
-//)
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreateGroupScreen(
@@ -55,14 +48,31 @@ fun CreateGroupScreen(
 
     LaunchedEffect(Unit) {
         bankViewModel.allUser()
-
     }
 
-    if (showConfirmDialog){
-        GroupCreatedDialog(onDismiss = {false},
-            onConfirm = {navController.navigate(AppDestinations.GROUPDETAIL)})
+    // Watch for success message changes
+    LaunchedEffect(bankViewModel.successMessage) {
+        if (bankViewModel.successMessage?.contains("T") == true) {
+            showConfirmDialog = true
+        }
     }
-    
+
+    if (showConfirmDialog) {
+        GroupCreatedDialog(
+            onDismiss = {
+                showConfirmDialog = false
+                bankViewModel.clearMessages()
+            },
+            onConfirm = {
+                showConfirmDialog = false
+                bankViewModel.clearMessages()
+                navController.navigate(AppDestinations.GROUPS) {
+                    popUpTo(AppDestinations.GROUPS) { inclusive = true }
+                }
+            }
+        )
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -77,7 +87,7 @@ fun CreateGroupScreen(
                     )
                 },
                 navigationIcon = {
-                    IconButton(onClick = { /* Handle back navigation */ }) {
+                    IconButton(onClick = { navController.navigateUp() }) {
                         Icon(
                             imageVector = Icons.Default.ArrowBack,
                             contentDescription = "Back",
@@ -93,7 +103,15 @@ fun CreateGroupScreen(
         bottomBar = {
             CreateGroupBottomNav(
                 selectedTab = selectedTab,
-                onTabSelected = { selectedTab = it }
+                onTabSelected = { tab ->
+                    selectedTab = tab
+                    when (tab) {
+                        0 -> navController.navigate(AppDestinations.HOMEPAGE)
+                        1 -> navController.navigate(AppDestinations.CARDS)
+                        2 -> navController.navigate(AppDestinations.GROUPS)
+                        3 -> navController.navigate(AppDestinations.PROFILE)
+                    }
+                }
             )
         },
         containerColor = Color(0xFFF8F9FA)
@@ -134,7 +152,7 @@ fun CreateGroupScreen(
                 SearchContactsSection(
                     searchQuery = searchQuery,
                     onSearchChange = { searchQuery = it },
-                    contacts = userFromViewModel,        // fetched from backend-------------------------------
+                    contacts = userFromViewModel,
                     onContactSelect = { contact ->
                         if (!selectedMembers.any { it.userId == contact.userId }) {
                             selectedMembers.add(contact)
@@ -143,69 +161,50 @@ fun CreateGroupScreen(
                 )
             }
 
-            // Description Section
-//            item {
-//                DescriptionSection(
-//                    description = description,
-//                    onDescriptionChange = { description = it }
-//                )
-//            }
-
-            // Spacer for button
-//            item {
-//                Spacer(modifier = Modifier.height(5.dp))
-//            }
-
             // Create Group Button
             item {
                 Button(
-                    onClick = { bankViewModel.createGroup(CreateGroupRequest(
-                        name = groupName,
-                        description = description,
-                        memberIds = selectedMembers.map { it.userId.toString() }
-                    ))
-
-                        println("msg^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^${bankViewModel.successMessage}")
-                        if (bankViewModel.successMessage?.contains("T") == true){
-                            showConfirmDialog = true
+                    onClick = {
+                        if (groupName.isNotBlank()) {
+                            bankViewModel.createGroup(CreateGroupRequest(
+                                name = groupName,
+                                description = description,
+                                memberIds = selectedMembers.map { it.userId.toString() }
+                            ))
                         }
-
-                        println("Showwwwwwwwwwwwwwwww $showConfirmDialog")
-                              },
+                    },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(50.dp),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color(0xFF2C3E50)
                     ),
-                    shape = RoundedCornerShape(8.dp)
+                    shape = RoundedCornerShape(8.dp),
+                    enabled = groupName.isNotBlank() && !bankViewModel.isLoading
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.Check,
-                        contentDescription = "Create",
-                        tint = Color.White,
-                        modifier = Modifier.size(18.dp)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = "Create Group",
-                        color = Color.White,
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Medium
-                    )
+                    if (bankViewModel.isLoading) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(18.dp),
+                            color = Color.White
+                        )
+                    } else {
+                        Icon(
+                            imageVector = Icons.Default.Check,
+                            contentDescription = "Create",
+                            tint = Color.White,
+                            modifier = Modifier.size(18.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = "Create Group",
+                            color = Color.White,
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
                 }
             }
         }
-
-        println("created Group ******RR")
-
-
-
-            println("created Group")
-
-
-
-
     }
 }
 
@@ -344,18 +343,17 @@ fun MemberAvatar(
                     .background(Color(0xFF2C3E50)),
                 contentAlignment = Alignment.Center
             ) {
-
                 Icon(
                     imageVector = Icons.Default.Person,
                     contentDescription = member.name,
                     tint = Color.White,
                     modifier = Modifier.size(24.dp)
                 )
-
-
             }
             Text(
-                text = member.name
+                text = member.name,
+                fontSize = 12.sp,
+                modifier = Modifier.padding(top = 4.dp)
             )
         }
 
@@ -386,57 +384,59 @@ fun SearchContactsSection(
     onContactSelect: (userDTO) -> Unit,
     onSearchChange: (String) -> Unit
 ) {
-    OutlinedTextField(
-        value = searchQuery,
-        onValueChange = onSearchChange,
-        placeholder = {
-            Text(
-                text = "Search contacts",
-                color = Color(0xFFCCCCCC)
-            )
-        },
-        leadingIcon = {
-            Icon(
-                imageVector = Icons.Default.Search,
-                contentDescription = "Search",
-                tint = Color(0xFF999999)
-            )
-        },
-        modifier = Modifier.fillMaxWidth(),
-        colors = OutlinedTextFieldDefaults.colors(
-            focusedBorderColor = Color(0xFF2C3E50),
-            unfocusedBorderColor = Color(0xFFDDDDDD),
-            focusedContainerColor = Color.White,
-            unfocusedContainerColor = Color.White
-        ),
-        shape = RoundedCornerShape(8.dp)
-    )
-    LazyColumn(modifier = Modifier.height(200.dp)) {
-        val filteredContacts = contacts.filter {
-            it.name.contains(searchQuery, ignoreCase = true)
-//                    ||
-//                    it.email.contains(searchQuery, ignoreCase = true)
-        }
-
-        if (filteredContacts.isEmpty()) {
-            item {
+    Column {
+        OutlinedTextField(
+            value = searchQuery,
+            onValueChange = onSearchChange,
+            placeholder = {
                 Text(
-                    text = "No contacts found",
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    textAlign = TextAlign.Center,
-                    color = Color.Gray
+                    text = "Search contacts",
+                    color = Color(0xFFCCCCCC)
                 )
+            },
+            leadingIcon = {
+                Icon(
+                    imageVector = Icons.Default.Search,
+                    contentDescription = "Search",
+                    tint = Color(0xFF999999)
+                )
+            },
+            modifier = Modifier.fillMaxWidth(),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = Color(0xFF2C3E50),
+                unfocusedBorderColor = Color(0xFFDDDDDD),
+                focusedContainerColor = Color.White,
+                unfocusedContainerColor = Color.White
+            ),
+            shape = RoundedCornerShape(8.dp)
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        LazyColumn(modifier = Modifier.height(200.dp)) {
+            val filteredContacts = contacts.filter {
+                it.name.contains(searchQuery, ignoreCase = true)
             }
-        } else {
-            items(filteredContacts) { contact ->
-                ContactItem(contact = contact, onClick = onContactSelect)
+
+            if (filteredContacts.isEmpty()) {
+                item {
+                    Text(
+                        text = "No contacts found",
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        textAlign = TextAlign.Center,
+                        color = Color.Gray
+                    )
+                }
+            } else {
+                items(filteredContacts) { contact ->
+                    ContactItem(contact = contact, onClick = onContactSelect)
+                }
             }
         }
     }
 }
-
 
 @Composable
 fun ContactItem(contact: userDTO, onClick: (userDTO) -> Unit) {
@@ -461,57 +461,7 @@ fun ContactItem(contact: userDTO, onClick: (userDTO) -> Unit) {
 
         Column(modifier = Modifier.weight(1f)) {
             Text(text = contact.name, fontSize = 16.sp, fontWeight = FontWeight.Medium)
-//            Text(text = contact.email, fontSize = 14.sp, color = Color.Gray)
         }
-    }
-}
-
-@Composable
-fun DescriptionSection(
-    description: String,
-    onDescriptionChange: (String) -> Unit
-) {
-    Column {
-        Row(
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = "Description",
-                fontSize = 16.sp,
-                color = Color(0xFF2C3E50),
-                fontWeight = FontWeight.Medium
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(
-                text = "(optional)",
-                fontSize = 14.sp,
-                color = Color(0xFF999999)
-            )
-        }
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        OutlinedTextField(
-            value = description,
-            onValueChange = onDescriptionChange,
-            placeholder = {
-                Text(
-                    text = "Write a short description...",
-                    color = Color(0xFFCCCCCC)
-                )
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(100.dp),
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = Color(0xFF2C3E50),
-                unfocusedBorderColor = Color(0xFFDDDDDD),
-                focusedContainerColor = Color.White,
-                unfocusedContainerColor = Color.White
-            ),
-            shape = RoundedCornerShape(8.dp),
-            maxLines = 4
-        )
     }
 }
 
@@ -647,11 +597,3 @@ fun CreateGroupBottomNav(
         )
     }
 }
-
-//@Preview(showBackground = true)
-//@Composable
-//fun CreateGroupScreenPreview() {
-//    MaterialTheme {
-//        CreateGroupScreen()
-//    }
-//}

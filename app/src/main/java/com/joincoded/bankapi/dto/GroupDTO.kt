@@ -67,17 +67,17 @@ data class GroupDetailsDTO(
     val groupName: String,
     val balance: BigDecimal,
     val adminId: Long,
+    val adminName: String, // Add admin name
     val members: List<MemberDTO>
 )
 
+// Updated MemberDTO to include user name
 data class MemberDTO(
     val userId: Long,
+    val userName: String, // Add user name
     val isAdmin: Boolean
 )
-
 
 data class GroupIdRequestDTO(
     val groupId: Long
 )
-
-

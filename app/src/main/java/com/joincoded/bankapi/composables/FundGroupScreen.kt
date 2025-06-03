@@ -1,6 +1,5 @@
 package com.joincoded.bankapi.composables
 
-
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -28,32 +27,22 @@ import java.math.BigDecimal
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FundGroupScreen(viewModel: BankViewModel, navController: NavController,group: GroupDetailsDTO) {
-    var selectedTab by remember { mutableStateOf(1) } // Groups tab selected
+fun FundGroupScreen(viewModel: BankViewModel, navController: NavController, group: GroupDetailsDTO) {
+    var selectedTab by remember { mutableStateOf(1) }
     var amount by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
     val context = LocalContext.current
 
-    // Load user account data
     LaunchedEffect(Unit) {
         viewModel.loadUserAccount()
     }
-    //Load group details from the backend based on the group ID
-    //This ensures we display up-to-date info (like members count)
-    LaunchedEffect(Unit) {
-        viewModel.getGroupDetails(group.groupId)
-    }
-    // Check if a success message exists after the funding request
-    // If it does, automatically go back to the previous screen
+
     val success = viewModel.successMessage
     LaunchedEffect(success) {
         if (success != null) {
-            navController.popBackStack() // Or navigate to a success screen
+            navController.popBackStack()
         }
     }
-
-
-
 
     Scaffold(
         topBar = {
@@ -67,7 +56,6 @@ fun FundGroupScreen(viewModel: BankViewModel, navController: NavController,group
                     )
                 },
                 navigationIcon = {
-                    /* Handle back navigation */
                     IconButton(onClick = { navController.popBackStack() }) {
                         Icon(
                             imageVector = Icons.Default.ArrowBack,
@@ -94,7 +82,6 @@ fun FundGroupScreen(viewModel: BankViewModel, navController: NavController,group
                     }
                 }
             )
-
         },
         containerColor = Color(0xFFF8F9FA)
     ) { paddingValues ->
@@ -105,18 +92,13 @@ fun FundGroupScreen(viewModel: BankViewModel, navController: NavController,group
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
-            // Group Info Section
-            // Show basic group info like name and number of members
-            // This info is dynamically loaded from the backend (from GroupDetailsDTO)
-            GroupInfoCard(group= group)
+            GroupInfoCard(group = group)
 
-            // Amount Section
             AmountInputSection(
                 amount = amount,
                 onAmountChange = { amount = it }
             )
 
-            // Description Section (optional)
             DescriptionInputSection(
                 description = description,
                 onDescriptionChange = { description = it }
@@ -124,22 +106,16 @@ fun FundGroupScreen(viewModel: BankViewModel, navController: NavController,group
 
             Spacer(modifier = Modifier.weight(1f))
 
-            // Fund Group Button
-            // This button is responsible for submitting the fund request to the backend
-            // It checks that the amount is a valid number before calling the function
             Button(
                 onClick = {
                     val parsedAmount = amount.toBigDecimalOrNull()
                     if (parsedAmount != null && parsedAmount > BigDecimal.ZERO) {
-                        // Send the funding request to the backend with amount, group ID, and description
                         viewModel.fundGroup(
                             groupId = group.groupId,
                             amount = parsedAmount,
                             description = if (description.isNotBlank()) description else "Group funding"
                         )
                     }
-                    navController.navigate(AppDestinations.GROUPDETAIL)
-
                 },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -147,7 +123,8 @@ fun FundGroupScreen(viewModel: BankViewModel, navController: NavController,group
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color(0xFF2C3E50)
                 ),
-                shape = RoundedCornerShape(8.dp)
+                shape = RoundedCornerShape(8.dp),
+                enabled = amount.toBigDecimalOrNull()?.let { it > BigDecimal.ZERO } == true
             ) {
                 Icon(
                     imageVector = Icons.Default.Upload,
@@ -172,7 +149,6 @@ fun GroupInfoCard(group: GroupDetailsDTO) {
     Row(
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // Group Avatar
         Box(
             modifier = Modifier
                 .size(48.dp)
@@ -189,8 +165,7 @@ fun GroupInfoCard(group: GroupDetailsDTO) {
         }
 
         Spacer(modifier = Modifier.width(12.dp))
-///////////////////////////////////////////
-        // Group Details
+
         Column {
             Text(
                 text = group.groupName,
@@ -203,26 +178,9 @@ fun GroupInfoCard(group: GroupDetailsDTO) {
                 fontSize = 14.sp,
                 color = Color(0xFF666666)
             )
-//            Row(
-//                verticalAlignment = Alignment.CenterVertically
-//            )
-//            {
-//                Icon(
-//                    imageVector = Icons.Default.Group,
-//                    contentDescription = "Members",
-//                    tint = Color(0xFF666666),
-//                    modifier = Modifier.size(14.dp)
-//                )
-//                Spacer(modifier = Modifier.width(4.dp))
-//                Text(
-//                    text = "5 members",
-//                    fontSize = 14.sp,
-//                    color = Color(0xFF666666)
-//                )
         }
     }
 }
-
 
 @Composable
 fun AmountInputSection(
@@ -420,11 +378,3 @@ fun FundGroupBottomNav(
         )
     }
 }
-
-//@Preview(showBackground = true)
-//@Composable
-//fun FundGroupScreenPreview() {
-//    MaterialTheme {
-//        FundGroupScreen()
-//    }
-//}

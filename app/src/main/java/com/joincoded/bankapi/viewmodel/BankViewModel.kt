@@ -218,26 +218,6 @@ class BankViewModel : ViewModel() {
             }
         }
     }
-    fun getGroupDetails(groupId: Long) {
-        authToken?.let { token ->
-            viewModelScope.launch {
-                try {
-                    val request = GroupIdRequestDTO(groupId)
-                    val response = groupApiService.getGroupDetails("Bearer $token", request)
-
-                    if (response.isSuccessful) {
-                        selectedGroup = response.body()
-                    } else {
-                        errorMessage = "Failed to fetch group details"
-                    }
-                } catch (e: Exception) {
-                    errorMessage = "Network error: ${e.message}"
-                    Log.e("BankViewModel", "Error fetching group", e)
-                }
-            }
-        }
-    }
-
 
     fun fundGroup(groupId: Long, amount: BigDecimal, description: String = "Group funding") {
         authToken?.let { token ->

@@ -2,6 +2,7 @@ package com.joincoded.bankapi.AppNavigator
 
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
@@ -41,7 +42,6 @@ fun BankNavHost(
         navController = navController,
         startDestination = AppDestinations.lOGIN
     ) {
-        // Login Screen
         composable(AppDestinations.lOGIN) {
             YallaBankingLoginScreen(
                 bankViewModel = bankViewModel,
@@ -49,7 +49,6 @@ fun BankNavHost(
             )
         }
 
-        // Sign Up Screen
         composable(AppDestinations.SIGNUP) {
             SignUpScreen(
                 viewModel = bankViewModel,
@@ -57,7 +56,6 @@ fun BankNavHost(
             )
         }
 
-        // Create Profile Screen (for new users after login)
         composable(AppDestinations.CREATEPROFILE) {
             CreateProfileScreen(
                 viewModel = bankViewModel,
@@ -65,7 +63,6 @@ fun BankNavHost(
             )
         }
 
-        // Home Screen
         composable(AppDestinations.HOMEPAGE) {
             HomeScreen(
                 viewModel = bankViewModel,
@@ -73,7 +70,6 @@ fun BankNavHost(
             )
         }
 
-        // Cards Screen
         composable(AppDestinations.CARDS) {
             CardsScreen(
                 viewModel = bankViewModel,
@@ -84,7 +80,6 @@ fun BankNavHost(
             )
         }
 
-        // Card Details Screen
         composable(AppDestinations.CARDDETAILS) {
             CardDetailsScreen(
                 viewModel = bankViewModel,
@@ -92,7 +87,6 @@ fun BankNavHost(
             )
         }
 
-        // Transfer Screen
         composable(AppDestinations.TRANSFER) {
             TransferScreen(
                 viewModel = bankViewModel,
@@ -100,7 +94,6 @@ fun BankNavHost(
             )
         }
 
-        // Groups Screen
         composable(AppDestinations.GROUPS) {
             GroupsScreen(
                 viewModel = bankViewModel,
@@ -108,16 +101,14 @@ fun BankNavHost(
             )
         }
 
-        // Create Group Screen
         composable(AppDestinations.CREATEGROUP) {
             CreateGroupScreen(
                 bankViewModel = bankViewModel,
-                navController= navController)
+                navController= navController
+            )
         }
 
-        // Group Details Screen
         composable(AppDestinations.GROUPDETAIL) {
-            // Extract group ID from navigation arguments
             val groupId = it.arguments?.getString("id")?.toLongOrNull() ?: 0L
             GroupDetailsScreen(
                 groupId = groupId,
@@ -126,23 +117,27 @@ fun BankNavHost(
             )
         }
 
-        // Add Member Screen
         composable(AppDestinations.ADDMEMBER) {
             Text(text = "Add Member Screen - To be implemented")
         }
 
-        // Fund Group Screen
         composable(AppDestinations.FUNDGROUP) {
             val group = bankViewModel.selectedGroup
-            FundGroupScreen(
-                viewModel = bankViewModel,
-                navController = navController,
-                group = group!!
-            )
+            if (group != null) {
+                FundGroupScreen(
+                    viewModel = bankViewModel,
+                    navController = navController,
+                    group = group
+                )
+            } else {
+                LaunchedEffect(Unit) {
+                    navController.navigate(AppDestinations.GROUPS) {
+                        popUpTo(AppDestinations.FUNDGROUP) { inclusive = true }
+                    }
+                }
+            }
         }
 
-
-        // Profile Screen
         composable(AppDestinations.PROFILE) {
             ProfileScreen(
                 viewModel = bankViewModel,

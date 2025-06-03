@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -17,13 +18,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.joincoded.bankapi.AppNavigator.AppDestinations
+import com.joincoded.bankapi.dto.GroupDetailsDTO
 import com.joincoded.bankapi.viewmodel.BankViewModel
 
 
@@ -40,6 +41,7 @@ fun CardsScreen(
 
     LaunchedEffect(Unit) {
         viewModel.loadUserAccount()  // Fetch account info from backend
+        viewModel.loadUserGroups()   // Fetch user groups from backend
     }
 
     Scaffold(
@@ -47,7 +49,7 @@ fun CardsScreen(
             .background(Color(0xFFF8F9FA))
             .fillMaxSize(), // Ensure Scaffold takes full size
         topBar = {
-            TopAppBar(
+            CenterAlignedTopAppBar(
                 title = {
                     Text(
                         text = "Cards",
@@ -86,16 +88,16 @@ fun CardsScreen(
             verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
 
-            // always show real account data from backend
+            // user Card Section
             item {
                 CardSection(
-                    sectionTitle = "YOUR CARD",           // ORIGINAL: Section title preserved
-                    cardTitle = "Yalla Banking",          // ORIGINAL: Card title preserved
+                    sectionTitle = "YOUR CARD",
+                    cardTitle = "Yalla Banking",
 
-                    // take last for digits of balance to show as card number
+                    // take last four digits of user ID to show as card number
                     cardNumber = "**** **** **** ${viewModel.currentUserId?.toString()?.padStart(4, '0') ?: "0000"}",
 
-                    cardHolder = viewModel.userAccount?.name ?: "card holder",
+                    cardHolder = viewModel.userAccount?.name ?: "Card Holder",
                     expiryDate = "08/29",
 
                     // blue card means active card, grey card means not
@@ -106,25 +108,197 @@ fun CardsScreen(
                 )
             }
 
-            // TODO: replace with real data
-            item {
-                CardSection(
-                    sectionTitle = "GROUP CARD",
-                    sectionSubtitle = "ADMIN",
-                    cardTitle = "Yalla Group Card",
-                    cardNumber = "**** **** **** 1234",
-                    cardHolder = "Team Yalla",
-                    expiryDate = "12/25",
-                    cardColor = Color(0xFF34495E),
-                    cardIcon = Icons.Outlined.AccountBox,
-                    onViewDetailsClick = onNavigateToCardDetails
-                )
+            // group Cards Section
+            if (viewModel.userGroups.isNotEmpty()) {
+                items(viewModel.userGroups) { group ->
+                    GroupCardSection(
+                        group = group,
+                        currentUserId = viewModel.currentUserId,
+                        onViewDetailsClick = {
+                            // Navigate to group details
+                            navController.navigate("groupDetail/${group.groupId}")
+                        }
+                    )
+                }
+            } else if (!viewModel.isLoading) {
+                //  placeholder when no groups exist
+                item {
+                    NoGroupsCard(
+                        onCreateGroupClick = {
+                            navController.navigate(AppDestinations.CREATEGROUP)
+                        }
+                    )
+                }
+            }
+
+            // loading indicator for groups
+            if (viewModel.isLoading) {
+                item {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(100.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator(
+                            color = Color(0xFF2C3E50)
+                        )
+                    }
+                }
             }
         }
     }
-
 }
 
+@Composable
+fun GroupCardSection(
+    group: GroupDetailsDTO,
+    currentUserId: Long?,
+    onViewDetailsClick: () -> Unit
+) {
+    val isAdmin = group.members.find { it.userId == currentUserId }?.isAdmin == true
+
+    Column {
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = Icons.Outlined.Group,
+                contentDescription = null,
+                tint = Color(0xFF999999),
+                modifier = Modifier.size(16.dp)
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                text = "GROUP CARD",
+                fontSize = 12.sp,
+                color = Color(0xFF999999),
+                fontWeight = FontWeight.Medium,
+                letterSpacing = 0.5.sp
+            )
+            if (isAdmin) {
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = "ADMIN",
+                    fontSize = 10.sp,
+                    color = Color.White,
+                    modifier = Modifier
+                        .background(
+                            Color(0xFFFF9800),
+                            RoundedCornerShape(4.dp)
+                        )
+                        .padding(horizontal = 6.dp, vertical = 2.dp)
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        DetailedBankCard(
+            cardTitle = group.groupName,
+            cardNumber = "**** **** **** ${group.groupId.toString().padStart(4, '0')}",
+            cardHolder = "${group.members.size} members",
+            expiryDate = "No Expiry",
+            backgroundColor = Color(0xFF34495E),
+            cardIcon = Icons.Outlined.Group
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.clickable { onViewDetailsClick() }
+            ) {
+                Icon(
+                    imageVector = Icons.Outlined.Menu,
+                    contentDescription = "View Details",
+                    tint = Color(0xFF2C3E50),
+                    modifier = Modifier.size(16.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = "View Details",
+                    fontSize = 14.sp,
+                    color = Color(0xFF2C3E50),
+                    fontWeight = FontWeight.Medium
+                )
+            }
+
+            Text(
+                text = "$${group.balance.setScale(2, java.math.RoundingMode.HALF_UP)}",
+                fontSize = 14.sp,
+                color = Color(0xFF2C3E50),
+                fontWeight = FontWeight.Medium
+            )
+        }
+    }
+}
+
+@Composable
+fun NoGroupsCard(
+    onCreateGroupClick: () -> Unit
+) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onCreateGroupClick() },
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(32.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Icon(
+                imageVector = Icons.Outlined.Group,
+                contentDescription = null,
+                tint = Color(0xFF999999),
+                modifier = Modifier.size(48.dp)
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Text(
+                text = "No Group Cards",
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Medium,
+                color = Color(0xFF2C3E50)
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Text(
+                text = "Join or create a group to get a group card",
+                fontSize = 14.sp,
+                color = Color(0xFF666666),
+                textAlign = TextAlign.Center
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Button(
+                onClick = onCreateGroupClick,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFF2C3E50)
+                )
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = null,
+                    modifier = Modifier.size(16.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("Create Group")
+            }
+        }
+    }
+}
 
 @Composable
 fun CardSection(
@@ -179,7 +353,7 @@ fun CardSection(
 
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.clickable { onViewDetailsClick() } // NEW: Made clickable
+                modifier = Modifier.clickable { onViewDetailsClick() }
             ) {
 
                 Icon(
@@ -243,15 +417,12 @@ fun DetailedBankCard(
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-
-                    text = if (cardTitle.contains("Group")) "VISA" else "VISA",
+                    text = "VISA",
                     color = Color(0xFF2C3E50),
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Bold
                 )
             }
-
-
 
             // expiration date
             Column(
@@ -271,7 +442,7 @@ fun DetailedBankCard(
                     lineHeight = 12.sp
                 )
 
-                Spacer(modifier = Modifier.height(8.dp))  // Add controlled spacing before card number
+                Spacer(modifier = Modifier.height(8.dp))
 
                 Text(
                     text = cardNumber,
@@ -286,14 +457,14 @@ fun DetailedBankCard(
                     text = "Valid thru",
                     color = Color(0xFFCCCCCC),
                     fontSize = 10.sp,
-                    lineHeight = 10.sp  // Remove extra line spacing
+                    lineHeight = 10.sp
                 )
                 Text(
-                    text = expiryDate,
+                    text = "05/28",
                     color = Color.White,
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Normal,
-                    lineHeight = 12.sp  // Remove extra line spacing
+                    lineHeight = 12.sp
                 )
             }
         }
@@ -382,11 +553,3 @@ fun CardsBottomNavigationBar(
         )
     }
 }
-//
-//@Preview(showBackground = true)
-//@Composable
-//fun CardsScreenPreview() {
-//    MaterialTheme {
-//        CardsScreen()  // ORIGINAL: Shows CardsScreen with default parameters
-//    }
-//}

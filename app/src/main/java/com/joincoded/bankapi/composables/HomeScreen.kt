@@ -65,7 +65,7 @@ fun HomeScreen(
             )
         },
         topBar = {
-            TopAppBar(
+            CenterAlignedTopAppBar(
                 title = {
                     Text(
                         text = "Yalla Banking",

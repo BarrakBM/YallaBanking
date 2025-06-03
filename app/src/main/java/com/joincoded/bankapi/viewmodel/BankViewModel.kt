@@ -1,5 +1,6 @@
 package com.joincoded.bankapi.viewmodel
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -34,6 +35,8 @@ class BankViewModel : ViewModel() {
     // User data
     var userAccount: InformationDTO? by mutableStateOf(null)
     var transactionHistory: List<allTransactionDTO> by mutableStateOf(emptyList())
+
+    var selectedGroup: GroupDetailsDTO? by mutableStateOf(null)
 
     var userList: List<userDTO> by mutableStateOf(emptyList())
 //    var  allUsers: allUsers by mutableStateOf(emptyList())
@@ -219,6 +222,26 @@ class BankViewModel : ViewModel() {
             }
         }
     }
+    fun getGroupDetails(groupId: Long) {
+        authToken?.let { token ->
+            viewModelScope.launch {
+                try {
+                    val request = GroupIdRequestDTO(groupId)
+                    val response = groupApiService.getGroupDetails("Bearer $token", request)
+
+                    if (response.isSuccessful) {
+                        selectedGroup = response.body()
+                    } else {
+                        errorMessage = "Failed to fetch group details"
+                    }
+                } catch (e: Exception) {
+                    errorMessage = "Network error: ${e.message}"
+                    Log.e("BankViewModel", "Error fetching group", e)
+                }
+            }
+        }
+    }
+
 
     fun fundGroup(groupId: Long, amount: BigDecimal, description: String = "Group funding") {
         authToken?.let { token ->
@@ -246,6 +269,8 @@ class BankViewModel : ViewModel() {
             }
         }
     }
+
+
 
     private fun checkToken() {
         // only proceed if we have a token

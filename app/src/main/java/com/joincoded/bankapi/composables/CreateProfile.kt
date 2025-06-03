@@ -47,7 +47,7 @@ fun CreateProfileScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
+            CenterAlignedTopAppBar(
                 title = {
                     Text(
                         text = "Create Profile",

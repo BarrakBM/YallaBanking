@@ -334,8 +334,12 @@ fun MemberAvatar(
     onRemove: () -> Unit
 ) {
     Box {
-        // Member Avatar
-        Column {
+        // Column with Icon + Name, centered horizontally
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier
+                .width(64.dp) // Optional: to constrain width for long names
+        ) {
             Box(
                 modifier = Modifier
                     .size(48.dp)
@@ -353,7 +357,8 @@ fun MemberAvatar(
             Text(
                 text = member.name,
                 fontSize = 12.sp,
-                modifier = Modifier.padding(top = 4.dp)
+                modifier = Modifier.padding(top = 4.dp),
+                textAlign = TextAlign.Center
             )
         }
 

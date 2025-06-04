@@ -1,11 +1,9 @@
 package com.joincoded.bankapi.viewmodel
 
-import android.util.Log
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.joincoded.bankapi.api.AccountApi
@@ -194,14 +192,15 @@ class BankViewModel : ViewModel() {
         }
     }
 
-    fun addGroupMember(groupId: Long, userIdToAdd: Long) {
+    fun addGroupMember(groupId: Long, userIdToAdd: userDTO) {
         authToken?.let { token ->
             viewModelScope.launch {
                 isLoading = true
                 errorMessage = null
 
                 try {
-                    val addMemberRequest = AddGroupMemberRequestDTO(groupId, userIdToAdd)
+
+                    val addMemberRequest = AddGroupMemberRequestDTO(groupId, userIdToAdd.userId)
                     val response = groupApiService.addMemberToGroup("Bearer $token", addMemberRequest)
 
                     if (response.isSuccessful) {

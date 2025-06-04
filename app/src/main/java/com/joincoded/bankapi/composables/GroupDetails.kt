@@ -25,6 +25,7 @@ import androidx.navigation.NavController
 import com.joincoded.bankapi.AppNavigator.AppDestinations
 import com.joincoded.bankapi.dto.GroupDetailsDTO
 import com.joincoded.bankapi.dto.MemberDTO
+import com.joincoded.bankapi.dto.userDTO
 import com.joincoded.bankapi.viewmodel.BankViewModel
 import kotlinx.coroutines.launch
 
@@ -39,7 +40,13 @@ fun GroupDetailsScreen(
     var isLoading by remember { mutableStateOf(true) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
     val coroutineScope = rememberCoroutineScope()
+    val selectedMembers = remember { mutableStateOf<userDTO?>(null) }
+    var searchQuery by remember { mutableStateOf("") }
+    var showAddMemberSection by remember { mutableStateOf(false) }
 
+    LaunchedEffect(Unit) {
+        viewModel.allUser()
+    }
     LaunchedEffect(groupId) {
         coroutineScope.launch {
             try {
@@ -85,7 +92,8 @@ fun GroupDetailsScreen(
                         if (isAdmin) {
                             IconButton(
                                 onClick = {
-                                    navController.navigate("addMember")
+                                    showAddMemberSection = true
+
                                 }
                             ) {
                                 Icon(
@@ -182,10 +190,28 @@ fun GroupDetailsScreen(
                                 viewModel.selectedGroup = groupDetails
                                 navController.navigate(AppDestinations.FUNDGROUP)
                             },
-                            onAddMember = { navController.navigate("addMember") },
+                            onAddMember = {
+                                showAddMemberSection = true
+                                          },
                             onPayment = { /* Handle payment */ },
                             modifier = Modifier.fillMaxWidth()
                         )
+                    }
+                    item {
+                        if (showAddMemberSection)
+                        {val userFromViewModel = viewModel.userList
+                            SearchContactsSection(
+                                searchQuery = searchQuery,
+                                onSearchChange = { searchQuery = it },
+                                contacts = userFromViewModel,
+                                onContactSelect = {
+                                     selectedUser ->
+                                        selectedMembers.value = selectedUser
+                                        viewModel.addGroupMember(groupId, selectedMembers.value!!)
+                                    }
+
+
+                            )}
                     }
 
                     item {
@@ -506,3 +532,8 @@ fun StatisticItem(
         )
     }
 }
+
+
+
+//------------------------
+
